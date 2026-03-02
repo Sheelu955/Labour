@@ -2,348 +2,98 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PT Shramik Portal | Secure Vault</title>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PT | Ultra-Connect AI Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap');
-        :root { --saffron: #ff9933; --bg-dark: #080a0f; }
-
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background: radial-gradient(circle at top right, rgba(255, 153, 51, 0.25), var(--bg-dark)),
-                        radial-gradient(circle at bottom left, rgba(19, 136, 8, 0.1), var(--bg-dark));
-            color: #ffffff; margin: 0; min-height: 100vh; overflow-x: hidden; 
-        }
-
-        .glass-card { 
-            background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(45px); 
-            border: 1px solid rgba(255, 153, 51, 0.2); border-radius: 40px; 
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-        }
-
-        .m-input { 
-            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); 
-            border-radius: 20px; padding: 18px; width: 100%; color: white; outline: none; font-weight: 700; 
-        }
-
-        .btn-saffron { background: linear-gradient(135deg, #ff9933, #cc5500); color: white; font-weight: 900; text-transform: uppercase; border-radius: 22px; padding: 20px; width: 100%; cursor: pointer; border: none; letter-spacing: 2px; }
-        .btn-back { background: transparent; border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); padding: 16px; border-radius: 20px; font-weight: 800; text-transform: uppercase; font-size: 11px; width: 100%; cursor: pointer; margin-top: 12px; }
-
-        .page-layer { display: none; position: fixed; inset: 0; padding: 20px; overflow-y: auto; z-index: 10; }
-        .page-layer.active { display: flex; flex-direction: column; animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
-
-        #masterLoader, #customModal { position: fixed; inset: 0; background: rgba(8,10,15,0.98); z-index: 10000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        .scan-line { position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--saffron); animation: scanEffect 2s infinite; display: none; }
-        @keyframes scanEffect { 0% { top: 0; } 100% { top: 100%; } }
-
-        .verify-badge { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: #10b981; padding: 4px 12px; border-radius: 100px; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; display: inline-flex; align-items: center; gap: 4px; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&family=Noto+Sans+Devanagari:wght@400;700;900&display=swap');
+        :root { --saffron: #ff9933; }
+        body { font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif; background: #080a0f; height: 100vh; display: flex; flex-direction: column; color: white; margin: 0; }
+        .chat-box { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .user-msg { background: var(--saffron); color: black; font-weight: 800; align-self: flex-end; border-radius: 20px 20px 0 20px; padding: 12px 18px; max-width: 80%; box-shadow: 0 4px 15px rgba(255,153,51,0.2); }
+        .ai-msg { background: rgba(255, 255, 255, 0.05); color: white; align-self: flex-start; border-radius: 20px 20px 20px 0; padding: 12px 18px; max-width: 80%; border: 1px solid rgba(255, 255, 255, 0.1); line-height: 1.6; }
     </style>
 </head>
 <body>
 
-<div id="masterLoader">
-    <div class="w-16 h-16 border-4 border-white/5 border-t-[#ff9933] rounded-full animate-spin"></div>
-    <p class="text-[10px] text-[#ff9933] font-black mt-6 uppercase tracking-[0.5em]" id="loaderMsg">Processing...</p>
-</div>
-
-<div id="customModal">
-    <div class="glass-card p-10 max-w-sm w-full text-center">
-        <div id="modalIcon"></div>
-        <h2 id="modalTitle" class="text-2xl font-black uppercase text-white mb-4">--</h2>
-        <p id="modalMsg" class="text-[11px] font-bold text-white/60 uppercase tracking-widest leading-relaxed mb-8">--</p>
-        <button onclick="closeModal()" class="btn-saffron w-full">Acknowledged</button>
-    </div>
-</div>
-
-<div id="view-welcome" class="page-layer active items-center justify-center text-center">
-    <img src="https://i.ibb.co/C30Ybjck/PT-20250224-170650-0000.png" class="w-32 mx-auto rounded-[45px] shadow-2xl mb-8 border-2 border-white/5">
-    <h1 class="text-3xl font-black italic uppercase leading-tight tracking-tighter">Patel Traders <br> <span class="text-[#ff9933]">Labor Portal</span></h1>
-    <div class="w-full max-w-xs mt-12 space-y-4">
-        <button onclick="showPage('view-login-1')" class="btn-saffron w-full">Labor Login →</button>
-        <button onclick="showPage('view-reg-1')" class="w-full py-5 text-[#ff9933] border-2 border-[#ff9933]/40 rounded-[22px] font-black uppercase text-[10px] bg-white/5">New Registration</button>
-    </div>
-</div>
-
-<div id="view-reg-1" class="page-layer items-center justify-center p-6 text-center">
-    <div class="glass-card p-10 max-w-sm w-full">
-        <h2 class="text-xl font-black uppercase text-[#ff9933] mb-8">Phase 01: Full Name</h2>
-        <input type="text" id="rName" placeholder="As per Aadhaar" class="m-input mb-8">
-        <button onclick="showPage('view-reg-2')" class="btn-saffron w-full">Continue →</button>
-        <button onclick="showPage('view-welcome')" class="btn-back">← Back</button>
-    </div>
-</div>
-
-<div id="view-reg-2" class="page-layer items-center justify-center p-6 text-center">
-    <div class="glass-card p-10 max-w-sm w-full">
-        <h2 class="text-xl font-black uppercase text-[#ff9933] mb-8">Phase 02: Mobile</h2>
-        <input type="tel" id="rPh" placeholder="10-Digit Mobile" maxlength="10" oninput="this.value=this.value.replace(/[^0-9]/g,'');" class="m-input mb-8">
-        <button onclick="showPage('view-reg-3')" class="btn-saffron w-full">Continue →</button>
-        <button onclick="showPage('view-reg-1')" class="btn-back">← Back</button>
-    </div>
-</div>
-
-<div id="view-reg-3" class="page-layer items-center justify-center p-6 text-center">
-    <div class="glass-card p-10 max-w-sm w-full">
-        <h2 class="text-xl font-black uppercase text-[#ff9933] mb-8">Phase 03: Birthday</h2>
-        <input type="text" id="rDob" placeholder="DD/MM/YYYY" class="m-input mb-8">
-        <button onclick="showPage('view-reg-4')" class="btn-saffron w-full">Continue →</button>
-        <button onclick="showPage('view-reg-2')" class="btn-back">← Back</button>
-    </div>
-</div>
-
-<div id="view-reg-4" class="page-layer items-center justify-center p-6 text-center">
-    <div class="glass-card p-10 max-w-sm w-full">
-        <h2 class="text-xl font-black uppercase text-[#ff9933] mb-8">Phase 04: Work Type</h2>
-        <select id="rJob" class="m-input mb-8 !appearance-none !bg-[#121620]">
-            <option value="" disabled selected>Select Designation</option>
-            <option value="Mistry">Mistry (Expert)</option>
-            <option value="Labor">General Labor</option>
-            <option value="Helper">Helper</option>
-        </select>
-        <button onclick="showPage('view-reg-5')" class="btn-saffron w-full">Continue →</button>
-        <button onclick="showPage('view-reg-3')" class="btn-back">← Back</button>
-    </div>
-</div>
-
-<div id="view-reg-5" class="page-layer items-center justify-center p-6 text-center">
-    <div class="glass-card p-10 max-w-sm w-full">
-        <h2 class="text-xl font-black uppercase text-[#ff9933] mb-8">Phase 05: Aadhaar ID</h2>
-        <input type="tel" id="rAadNo" placeholder="12-Digit Aadhaar Number" maxlength="12" oninput="this.value=this.value.replace(/[^0-9]/g,'');" class="m-input mb-8">
-        <button onclick="validateAadhaarNext()" class="btn-saffron w-full">Continue →</button>
-        <button onclick="showPage('view-reg-4')" class="btn-back">← Back</button>
-    </div>
-</div>
-
-<div id="view-reg-6" class="page-layer items-center justify-center p-6 text-center">
-    <div class="glass-card p-10 max-w-xl w-full">
-        <h2 class="text-xl font-black uppercase text-blue-400 mb-8">Phase 06: Aadhaar Front</h2>
-        <div class="relative bg-white/5 border-2 border-dashed border-[#ff9933]/30 rounded-[35px] p-12 overflow-hidden mb-8">
-            <div id="afScanLine" class="scan-line"></div>
-            <input type="file" onchange="runSuperScan('aadhaar_front')" class="absolute inset-0 opacity-0 cursor-pointer" id="fAf">
-            <p id="af-lbl" class="text-[11px] font-black text-[#ff9933] uppercase">Scan Aadhaar Front</p>
-        </div>
-        <button id="btnAF" onclick="showPage('view-reg-7')" class="btn-saffron w-full" disabled>AI Verification Required</button>
-        <button onclick="showPage('view-reg-5')" class="btn-back">← Back</button>
-    </div>
-</div>
-
-<div id="view-reg-7" class="page-layer items-center justify-center p-6 text-center">
-    <div class="glass-card p-10 max-w-xl w-full">
-        <h2 class="text-xl font-black uppercase text-blue-400 mb-8">Phase 07: Aadhaar Back</h2>
-        <div class="relative bg-white/5 border-2 border-dashed border-[#ff9933]/30 rounded-[35px] p-12 overflow-hidden mb-8">
-            <input type="file" onchange="runSuperScan('aadhaar_back')" class="absolute inset-0 opacity-0 cursor-pointer" id="fAb">
-            <p id="ab-lbl" class="text-[11px] font-black text-[#ff9933] uppercase">Scan Aadhaar Back</p>
-        </div>
-        <button id="btnAB" onclick="showPage('view-reg-8')" class="btn-saffron w-full" disabled>Scan Required</button>
-        <button onclick="showPage('view-reg-6')" class="btn-back">← Back</button>
-    </div>
-</div>
-
-<div id="view-reg-8" class="page-layer items-center justify-center p-6 text-center">
-    <div class="glass-card p-10 max-w-sm w-full">
-        <h2 class="text-xl font-black uppercase text-[#ff9933] mb-8">Phase 08: PAN ID</h2>
-        <input type="text" id="rPanNo" placeholder="PAN Number (10 Chars)" maxlength="10" oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');" class="m-input mb-8">
-        <button onclick="validatePanNext()" class="btn-saffron w-full">Continue →</button>
-        <button onclick="showPage('view-reg-7')" class="btn-back">← Back</button>
-    </div>
-</div>
-
-<div id="view-reg-9" class="page-layer items-center justify-center p-6 text-center">
-    <div class="glass-card p-10 max-w-xl w-full">
-        <h2 class="text-xl font-black uppercase text-emerald-400 mb-8">Phase 09: PAN Card</h2>
-        <div class="relative bg-white/5 border-2 border-dashed border-[#ff9933]/30 rounded-[35px] p-12 overflow-hidden mb-8">
-            <div id="pScanLine" class="scan-line"></div>
-            <input type="file" onchange="runSuperScan('pan')" class="absolute inset-0 opacity-0 cursor-pointer" id="fP">
-            <p id="p-lbl" class="text-[11px] font-black text-[#ff9933] uppercase">Scan PAN Card</p>
-        </div>
-        <button id="btnP" onclick="openReviewHub()" class="btn-saffron w-full" disabled>AI Verification Required</button>
-        <button onclick="showPage('view-reg-8')" class="btn-back">← Back</button>
-    </div>
-</div>
-
-<div id="view-review" class="page-layer items-center justify-center p-6 text-center">
-    <div class="glass-card p-10 max-w-2xl w-full space-y-6">
-        <h2 class="text-2xl font-black uppercase italic text-[#ff9933]">Review Details</h2>
-        <div class="bg-black/40 p-10 rounded-[40px] text-left space-y-3 text-xs font-bold border border-white/5">
-            <div class="flex justify-between border-b border-white/5 pb-2"><span class="opacity-30 uppercase">Name:</span><span id="vN">--</span></div>
-            <div class="flex justify-between border-b border-white/5 pb-2"><span class="opacity-30 uppercase">Aadhaar:</span><span id="vA">--</span></div>
-            <div class="flex justify-between border-b border-white/5 pb-2"><span class="opacity-30 uppercase">PAN No:</span><span id="vP">--</span></div>
-            <div class="flex justify-between"><span class="opacity-30 uppercase">Mobile:</span><span id="vM">--</span></div>
-        </div>
-        <button onclick="showPage('view-reg-final')" class="btn-saffron w-full">Confirm Identity →</button>
-        <button onclick="showPage('view-reg-9')" class="btn-back">← Edit Details</button>
-    </div>
-</div>
-
-<div id="view-reg-final" class="page-layer items-center justify-center p-6">
-    <div class="glass-card p-10 w-full max-w-sm text-center">
-        <h2 class="text-xl font-black uppercase text-[#ff9933] mb-8">Secure Vault Setup</h2>
-        <input type="text" id="rU" placeholder="CREATE USERNAME" class="m-input mb-4">
-        <input type="password" id="rP" placeholder="CREATE PASSWORD" class="m-input mb-8">
-        <button onclick="finalizeAndSync()" class="btn-saffron w-full">Submit Application 🚀</button>
-    </div>
-</div>
-
-<div id="view-success" class="page-layer pt-12 text-center p-6">
-    <div class="glass-card p-12 max-w-2xl mx-auto w-full space-y-8" id="regSummaryCard">
-        <div class="w-24 h-24 bg-emerald-500/10 border-4 border-emerald-500 rounded-full flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(16,185,129,0.3)]">
-            <span class="text-6xl text-emerald-500 font-black">✓</span>
-        </div>
-        <h2 class="text-3xl font-black text-white uppercase italic tracking-tight">Successfully Generated!</h2>
-        <p class="text-[10px] text-[#ff9933] font-black tracking-[6px]">REQUEST ID: <span id="successReq">--</span></p>
-        <button onclick="location.reload()" class="btn-saffron w-full">Return Home</button>
-    </div>
-</div>
-
-<div id="view-login-1" class="page-layer items-center justify-center">
-    <div class="glass-card p-10 w-full max-w-sm">
-        <h2 class="text-xl font-black uppercase text-[#ff9933] mb-8">Labor Access 01</h2>
-        <input type="text" id="lU" placeholder="USERNAME" class="m-input mb-8">
-        <button onclick="showPage('view-login-2')" class="btn-saffron w-full">Continue →</button>
-        <button onclick="showPage('view-welcome')" class="btn-back">← Back</button>
-    </div>
-</div>
-
-<div id="view-login-2" class="page-layer items-center justify-center">
-    <div class="glass-card p-10 w-full max-w-sm">
-        <h2 class="text-xl font-black uppercase text-[#ff9933] mb-8">Labor Access 02</h2>
-        <input type="password" id="lP" placeholder="PASSWORD" class="m-input mb-8">
-        <button onclick="handleLogin()" class="btn-saffron w-full">Unlock Vault</button>
-    </div>
-</div>
-
-<div id="view-login-denied" class="page-layer items-center justify-center text-center p-6">
-    <div class="glass-card p-10 w-full max-w-md">
-        <h2 class="text-2xl font-black uppercase text-rose-500 mb-6">Access Denied</h2>
-        <p class="text-sm text-white/70 font-bold">Your account is under verification. Please wait 2-5 days.</p>
-        <button onclick="location.reload()" class="btn-back mt-10">Return Home</button>
-    </div>
-</div>
-
-<div id="view-dash" class="page-layer pt-12 p-6">
-    <div class="glass-card p-8 mb-8">
-        <div class="flex justify-between items-start">
+    <header class="p-5 border-b border-white/10 bg-black/60 flex items-center justify-between backdrop-blur-lg">
+        <div class="flex items-center gap-4">
+            <img src="https://i.ibb.co/C30Ybjck/PT-20250224-170650-0000.png" class="w-12 h-12 rounded-2xl border-2 border-[#ff9933]">
             <div>
-                <h2 id="dashName" class="text-2xl font-black italic uppercase">--</h2>
-                <div id="kycBadge" class="verify-badge mt-2"><span>✓</span> KYC VERIFIED</div>
-                <p id="dashAccNo" class="text-[11px] font-black text-[#ff9933] mt-1">A/C: GENERATING...</p>
+                <h1 class="text-lg font-black uppercase text-[#ff9933] leading-none">Patel Traders</h1>
+                <p class="text-[9px] font-black text-emerald-400 uppercase tracking-[3px] mt-1.5">Connected to Gemini Flash ●</p>
             </div>
-            <button onclick="location.reload()" class="bg-rose-500/10 text-rose-500 text-[10px] font-black px-4 py-2 rounded-xl">LOGOUT</button>
         </div>
-    </div>
-    <div id="salGrid" class="space-y-4"></div>
-</div>
+    </header>
+
+    <main id="chatDisplay" class="chat-box"></main>
+
+    <footer class="p-4 bg-black/80 border-t border-white/10">
+        <div class="max-w-4xl mx-auto flex gap-3">
+            <input type="text" id="userInput" placeholder="यहाँ प्रश्न पूछें..." 
+                class="flex-grow bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm focus:outline-none focus:border-[#ff9933] font-bold text-white">
+            <button onclick="askAI()" class="bg-[#ff9933] text-black px-8 rounded-2xl font-black uppercase text-xs hover:bg-[#e65c00] transition active:scale-95">
+                भेजें (Send)
+            </button>
+        </div>
+    </footer>
 
 <script>
-    const SHEET_URL = "https://script.google.com/macros/s/AKfycbwTtZpvCivalIGGonhbp4Mnt4-ffQOIyRGU5O1a9O-B2dNSgI_w7unKYsIaq835U-Ag/exec";
-    const DRIVE_URL = "https://script.google.com/macros/s/AKfycbzRtL9RKXNPtwnm_HwMQfrS-Ycr6wsC3Y5Cxaz1paaiP8YWvzj8-meb-1YuUkZ7h5z5/exec";
-    
-    let kLinks = { af: "", ab: "", p: "" };
+    // ✅ आपकी स्क्रीनशॉट से मिली API Key (Suffix: NMto)
+    const PT_API_KEY = "AIzaSyCOzmXroquzR0edbNhKkJP31n-biILNMto"; 
+    const PT_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${PT_API_KEY}`;
 
-    function showPage(id) {
-        document.querySelectorAll('.page-layer').forEach(l => l.classList.remove('active'));
-        const target = document.getElementById(id);
-        if(target) target.classList.add('active');
-    }
+    const SYSTEM_RULES = `
+    आप 'पटेल ट्रेडर्स' के आधिकारिक AI असिस्टेंट हैं। संचालक: संजय कुमार। स्थान: कन्नौज।
+    नियम: 
+    1. केवल शुद्ध हिंदी (Sanskritized) बोलें। 'प्रतिष्ठान', 'मूल्य', 'सुदृढ़' जैसे शब्दों का प्रयोग करें।
+    2. बेड/पलंग नहीं बनते। वारंटी और होम डिलीवरी की सुविधा नहीं है।
+    3. उधार के लिए 'कस्टमर वॉल्ट' देखें। बहुत विनम्र रहें।
+    `;
 
-    function toggleLoader(s, t) { 
-        if(t) document.getElementById('loaderMsg').innerText = t;
-        document.getElementById('masterLoader').style.display = s ? 'flex' : 'none'; 
-    }
+    const chatDisplay = document.getElementById('chatDisplay');
+    const userInput = document.getElementById('userInput');
 
-    function closeModal() { document.getElementById('customModal').style.display = 'none'; }
+    window.onload = () => addMsg("प्रणाम! मैं पटेल ट्रेडर्स का AI असिस्टेंट हूँ। मैं आपकी सहायता के लिए तैयार हूँ।", 'ai-msg');
 
-    function validateAadhaarNext() {
-        if(document.getElementById('rAadNo').value.length !== 12) return alert("Aadhaar must be 12 digits.");
-        showPage('view-reg-6');
-    }
+    userInput.addEventListener("keypress", (e) => { if(e.key === 'Enter') askAI(); });
 
-    function validatePanNext() {
-        if(document.getElementById('rPanNo').value.length !== 10) return alert("PAN must be 10 characters.");
-        showPage('view-reg-9');
-    }
+    async function askAI() {
+        const text = userInput.value.trim();
+        if(!text) return;
 
-    async function runSuperScan(type) {
-        const file = document.getElementById(type === 'aadhaar_front' ? 'fAf' : (type === 'aadhaar_back' ? 'fAb' : 'fP')).files[0];
-        if(!file) return;
-        toggleLoader(true, "AI Number Matching...");
-        const reader = new FileReader();
-        reader.onload = async () => {
-            const b64 = reader.result.split(',')[1];
-            try {
-                const res = await fetch(DRIVE_URL, { method: 'POST', body: JSON.stringify({ documentType: type.toUpperCase(), fileName: `${type}_${Date.now()}.jpg`, base64: b64 }) });
-                const json = await res.json();
-                if(type === 'aadhaar_front') { kLinks.af = json.fileUrl; document.getElementById('btnAF').disabled = false; document.getElementById('btnAF').innerText = "Verified ✓"; }
-                else if(type === 'aadhaar_back') { kLinks.ab = json.fileUrl; document.getElementById('btnAB').disabled = false; document.getElementById('btnAB').innerText = "Uploaded ✓"; }
-                else { kLinks.p = json.fileUrl; document.getElementById('btnP').disabled = false; document.getElementById('btnP').innerText = "Verified ✓"; }
-            } catch(e) { alert("Upload Error"); }
-            toggleLoader(false);
-        };
-        reader.readAsDataURL(file);
-    }
+        addMsg(text, 'user-msg');
+        userInput.value = "";
+        const tempAi = addMsg("विचार कर रहा हूँ...", 'ai-msg');
 
-    function openReviewHub() {
-        document.getElementById('vN').innerText = document.getElementById('rName').value;
-        document.getElementById('vA').innerText = document.getElementById('rAadNo').value;
-        document.getElementById('vP').innerText = document.getElementById('rPanNo').value;
-        document.getElementById('vM').innerText = document.getElementById('rPh').value;
-        showPage('view-review');
-    }
-
-    async function finalizeAndSync() {
-        toggleLoader(true, "Finalizing Application...");
-        const reqId = "PT-REQ-" + Math.floor(100000 + Math.random()*900000);
-        const payload = {
-            Action: "Registration", Name: document.getElementById('rName').value, Mobile: document.getElementById('rPh').value,
-            User: document.getElementById('rU').value, Pass: document.getElementById('rP').value,
-            AadhaarNo: document.getElementById('rAadNo').value, PanNo: document.getElementById('rPanNo').value,
-            DOB: document.getElementById('rDob').value, Designation: document.getElementById('rJob').value,
-            AadhaarFront: kLinks.af, AadhaarBack: kLinks.ab, PanScan: kLinks.p, Status: "Pending", ReqId: reqId, TargetSheet: "Labor_DB"
-        };
         try {
-            await fetch(SHEET_URL, { method: 'POST', body: JSON.stringify(payload) });
-            document.getElementById('successReq').innerText = reqId;
-            showPage('view-success');
-        } catch(e) { alert("Sync Error"); }
-        toggleLoader(false);
+            const response = await fetch(PT_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: `${SYSTEM_RULES} \n\n सवाल: ${text}` }] }]
+                })
+            });
+
+            const data = await response.json();
+            
+            if(data.candidates && data.candidates[0].content) {
+                tempAi.innerText = data.candidates[0].content.parts[0].text;
+            } else {
+                tempAi.innerText = "माफ़ी चाहूँगा, एआई सर्वर से संपर्क नहीं हो पाया। अपनी Google AI Studio सेटिंग्स चेक करें।";
+            }
+        } catch (e) {
+            tempAi.innerText = "नेटवर्क एरर! कृपया इंटरनेट चेक करें।";
+        }
     }
 
-    async function handleLogin() {
-        const u = document.getElementById('lU').value, p = document.getElementById('lP').value;
-        toggleLoader(true, "Checking Vault...");
-        try {
-            const res = await fetch(`${SHEET_URL}?Action=getUsers&Sheet=Labor_DB`);
-            const users = await res.json();
-            const active = users.find(x => (x.User || x.user) === u && (x.Pass || x.pass) === p);
-            if(active) {
-                if((active.Status || active.status) === "Approved") {
-                    showPage('view-dash');
-                    document.getElementById('dashName').innerText = active.Name || active.name;
-                    document.getElementById('dashAccNo').innerText = "A/C: " + (active.AccountNo || active.accountNo || "Generating...");
-                    syncSal(active);
-                } else showPage('view-login-denied');
-            } else alert("Invalid Login");
-        } catch(e) { alert("Server Error"); }
-        toggleLoader(false);
-    }
-
-    async function syncSal(laborObj) {
-        try {
-            const res = await fetch(`${SHEET_URL}?Action=getSalaries&Sheet=Salary_Vault&Key=Name&Value=${encodeURIComponent(laborObj.Name || laborObj.name)}`);
-            const data = await res.json();
-            document.getElementById('salGrid').innerHTML = data.reverse().map(r => `
-                <div class="glass-card p-6 border-l-4 border-[#ff9933] flex justify-between items-center text-xs">
-                    <div><h4 class="font-black uppercase">${r.Month}</h4><p class="text-xl font-black text-[#ff9933]">${r.Amount}</p></div>
-                    ${r.ReceiptLink ? `<a href="${r.ReceiptLink}" target="_blank" class="bg-[#ff9933] text-black px-4 py-2 rounded-xl font-black">Receipt ↓</a>` : ""}
-                </div>`).join('') || "<p class='opacity-20'>No History.</p>";
-        } catch(e) { console.log("Sal Error"); }
+    function addMsg(text, type) {
+        const div = document.createElement('div');
+        div.className = type;
+        div.innerText = text;
+        chatDisplay.appendChild(div);
+        chatDisplay.scrollTop = chatDisplay.scrollHeight;
+        return div;
     }
 </script>
 </body>
