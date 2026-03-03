@@ -2,98 +2,236 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PT | Ultra-Connect AI Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PT GOMINI MAU | Customer Support</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&family=Noto+Sans+Devanagari:wght@400;700;900&display=swap');
-        :root { --saffron: #ff9933; }
-        body { font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif; background: #080a0f; height: 100vh; display: flex; flex-direction: column; color: white; margin: 0; }
-        .chat-box { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        .user-msg { background: var(--saffron); color: black; font-weight: 800; align-self: flex-end; border-radius: 20px 20px 0 20px; padding: 12px 18px; max-width: 80%; box-shadow: 0 4px 15px rgba(255,153,51,0.2); }
-        .ai-msg { background: rgba(255, 255, 255, 0.05); color: white; align-self: flex-start; border-radius: 20px 20px 20px 0; padding: 12px 18px; max-width: 80%; border: 1px solid rgba(255, 255, 255, 0.1); line-height: 1.6; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); 
+            height: 100dvh; 
+            overflow: hidden; 
+            margin: 0; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .chat-container { 
+            height: calc(100dvh - 240px); 
+            scroll-behavior: smooth; 
+        }
+
+        .glass-header {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .message-bubble { 
+            max-width: 85%; 
+            animation: slideUp 0.3s ease-out;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+
+        @keyframes slideUp { 
+            from { opacity: 0; transform: translateY(15px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #f97316; border-radius: 10px; }
+        
+        footer {
+            font-size: 10px;
+            color: #9ca3af;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 10px 0;
+            margin-top: auto;
+        }
+        .admin-mode-active { border: 2px solid #2563eb !important; }
     </style>
 </head>
 <body>
 
-    <header class="p-5 border-b border-white/10 bg-black/60 flex items-center justify-between backdrop-blur-lg">
-        <div class="flex items-center gap-4">
-            <img src="https://i.ibb.co/C30Ybjck/PT-20250224-170650-0000.png" class="w-12 h-12 rounded-2xl border-2 border-[#ff9933]">
-            <div>
-                <h1 class="text-lg font-black uppercase text-[#ff9933] leading-none">Patel Traders</h1>
-                <p class="text-[9px] font-black text-emerald-400 uppercase tracking-[3px] mt-1.5">Connected to Gemini Flash ●</p>
+    <div id="loginModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xl p-4">
+        <div class="bg-white p-10 rounded-[45px] shadow-2xl w-full max-w-sm border-t-8 border-orange-500 text-center">
+            <h2 class="text-4xl font-black text-gray-900 mb-1">PT GOMINI MAU</h2>
+            <p class="text-orange-500 font-extrabold text-sm uppercase tracking-widest mb-8">Customer Support</p>
+            <input type="text" id="uName" placeholder="आपका शुभ नाम" class="w-full bg-gray-50 border-2 border-gray-100 p-4 mb-4 rounded-2xl focus:border-orange-500 outline-none font-bold text-center">
+            <input type="number" id="uPhone" placeholder="मोबाइल नंबर" class="w-full bg-gray-50 border-2 border-gray-100 p-4 mb-8 rounded-2xl focus:border-orange-500 outline-none font-bold text-center">
+            <button onclick="startPortal()" class="w-full bg-orange-500 text-white py-5 rounded-2xl font-black text-xl shadow-xl hover:bg-orange-600 active:scale-95 transition-all">शुरू करें →</button>
+        </div>
+    </div>
+
+    <div class="w-full max-w-2xl px-4 pt-4 h-full flex flex-col">
+        
+        <div class="glass-header rounded-[35px] p-5 mb-5 flex items-center justify-between shadow-lg border border-white">
+            <div class="flex items-center gap-4">
+                <img src="https://i.ibb.co/d0X2B3Wf/PT-20250224-170650-0000.png" alt="PT GOMINI MAU LOGO" border="0" class="w-14 h-14 rounded-2xl shadow-lg object-contain transform -rotate-3">
+                <div>
+                    <h1 class="font-black text-gray-800 text-xl tracking-tight leading-none mb-1">PT GOMINI MAU</h1>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                        <span class="text-[10px] text-gray-400 font-bold uppercase">Active Support</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex flex-col items-end gap-2">
+                <div class="flex items-center gap-2">
+                    <p id="displayUserName" class="text-[10px] font-black text-orange-500 uppercase bg-orange-50 px-3 py-1 rounded-full">Guest</p>
+                    <button onclick="logout()" title="लॉगआउट" class="w-8 h-8 bg-gray-100 hover:bg-red-50 hover:text-red-500 rounded-full flex items-center justify-center transition-all">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1-2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    </button>
+                </div>
+                <div id="adminBadge" class="hidden text-[9px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-bold">ADMIN MODE</div>
             </div>
         </div>
-    </header>
 
-    <main id="chatDisplay" class="chat-box"></main>
+        <div id="chatBody" class="chat-container custom-scrollbar overflow-y-auto flex flex-col gap-5 px-2"></div>
 
-    <footer class="p-4 bg-black/80 border-t border-white/10">
-        <div class="max-w-4xl mx-auto flex gap-3">
-            <input type="text" id="userInput" placeholder="यहाँ प्रश्न पूछें..." 
-                class="flex-grow bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm focus:outline-none focus:border-[#ff9933] font-bold text-white">
-            <button onclick="askAI()" class="bg-[#ff9933] text-black px-8 rounded-2xl font-black uppercase text-xs hover:bg-[#e65c00] transition active:scale-95">
-                भेजें (Send)
+        <div id="thinkingIndicator" class="hidden mt-2 ml-2">
+            <div class="bg-white/80 backdrop-blur-sm px-6 py-3 rounded-full shadow-sm border border-orange-100 inline-flex items-center gap-2">
+                <span class="text-orange-500 font-black text-xs animate-bounce">Gomini AI</span>
+                <span class="text-gray-400 text-xs font-bold">प्रोसेस कर रहा है...</span>
+            </div>
+        </div>
+
+        <div id="inputBoxContainer" class="bg-white rounded-[40px] p-3 mt-4 shadow-2xl flex items-center gap-3 border-4 border-white transition-all">
+            <input type="text" id="userInput" placeholder="अपना सवाल यहाँ टाइप करें..." class="flex-1 bg-transparent py-3 px-5 outline-none font-bold text-gray-700 text-base placeholder:text-gray-300" oninput="toggleSendBtn()" onkeypress="if(event.key === 'Enter') sendMessage()">
+
+            <button id="sendBtn" onclick="sendMessage()" class="hidden w-14 h-14 bg-orange-500 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-orange-600 active:scale-90 transition-all">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
             </button>
         </div>
-    </footer>
+
+        <footer class="text-center">
+            Official AI Developed by Patel Traders Copyright 2026
+        </footer>
+    </div>
 
 <script>
-    // ✅ आपकी स्क्रीनशॉट से मिली API Key (Suffix: NMto)
-    const PT_API_KEY = "AIzaSyCOzmXroquzR0edbNhKkJP31n-biILNMto"; 
-    const PT_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${PT_API_KEY}`;
+    const CONFIG = { 
+        url: "https://script.google.com/macros/s/AKfycbzSNR2Bk2cQgjscx8ShIguHW--mQ8u9Dn-JD9UKipvMg5vy4I1r7zVds-GDSiBgX7Va/exec", 
+        token: "PT_SECURE_2026",
+        master_key: "PT955"
+    };
+    let userInfo = { name: "", phone: "" };
 
-    const SYSTEM_RULES = `
-    आप 'पटेल ट्रेडर्स' के आधिकारिक AI असिस्टेंट हैं। संचालक: संजय कुमार। स्थान: कन्नौज।
-    नियम: 
-    1. केवल शुद्ध हिंदी (Sanskritized) बोलें। 'प्रतिष्ठान', 'मूल्य', 'सुदृढ़' जैसे शब्दों का प्रयोग करें।
-    2. बेड/पलंग नहीं बनते। वारंटी और होम डिलीवरी की सुविधा नहीं है।
-    3. उधार के लिए 'कस्टमर वॉल्ट' देखें। बहुत विनम्र रहें।
-    `;
+    window.onload = function() {
+        const savedName = localStorage.getItem('gomini_uName');
+        const savedPhone = localStorage.getItem('gomini_uPhone');
+        if (savedName && savedPhone) {
+            userInfo = { name: savedName, phone: savedPhone };
+            document.getElementById('loginModal').classList.add('hidden');
+            document.getElementById('displayUserName').innerText = savedName;
+            if(sessionStorage.getItem('gomini_admin') === 'true') activateAdminUI();
+            addMsg(`नमस्ते ${savedName} जी! PT GOMINI MAU में आपकी वापसी देखकर खुशी हुई।`, 'ai');
+        }
+    };
 
-    const chatDisplay = document.getElementById('chatDisplay');
-    const userInput = document.getElementById('userInput');
-
-    window.onload = () => addMsg("प्रणाम! मैं पटेल ट्रेडर्स का AI असिस्टेंट हूँ। मैं आपकी सहायता के लिए तैयार हूँ।", 'ai-msg');
-
-    userInput.addEventListener("keypress", (e) => { if(e.key === 'Enter') askAI(); });
-
-    async function askAI() {
-        const text = userInput.value.trim();
-        if(!text) return;
-
-        addMsg(text, 'user-msg');
-        userInput.value = "";
-        const tempAi = addMsg("विचार कर रहा हूँ...", 'ai-msg');
-
-        try {
-            const response = await fetch(PT_ENDPOINT, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: `${SYSTEM_RULES} \n\n सवाल: ${text}` }] }]
-                })
-            });
-
-            const data = await response.json();
-            
-            if(data.candidates && data.candidates[0].content) {
-                tempAi.innerText = data.candidates[0].content.parts[0].text;
-            } else {
-                tempAi.innerText = "माफ़ी चाहूँगा, एआई सर्वर से संपर्क नहीं हो पाया। अपनी Google AI Studio सेटिंग्स चेक करें।";
-            }
-        } catch (e) {
-            tempAi.innerText = "नेटवर्क एरर! कृपया इंटरनेट चेक करें।";
+    // Logout Function
+    function logout() {
+        if(confirm("क्या आप इस सेशन से बाहर जाना चाहते हैं?")) {
+            localStorage.removeItem('gomini_uName');
+            localStorage.removeItem('gomini_uPhone');
+            sessionStorage.removeItem('gomini_admin');
+            location.reload(); // पेज रिफ्रेश करके लॉगिन स्क्रीन पर ले जाएं
         }
     }
 
-    function addMsg(text, type) {
+    function activateAdminUI() {
+        sessionStorage.setItem('gomini_admin', 'true');
+        document.getElementById('adminBadge').classList.remove('hidden');
+        document.getElementById('inputBoxContainer').classList.add('admin-mode-active');
+        document.getElementById('userInput').placeholder = "सिखाएँ: सवाल | जवाब";
+    }
+
+    function toggleSendBtn() {
+        const val = document.getElementById('userInput').value.trim();
+        const btn = document.getElementById('sendBtn');
+        btn.style.display = val.length > 0 ? 'flex' : 'none';
+    }
+
+    async function startPortal() {
+        const name = document.getElementById('uName').value.trim();
+        const phone = document.getElementById('uPhone').value.trim();
+        if(name.length < 2 || phone.length < 10) return alert("नाम और नंबर सही डालें!");
+        userInfo = { name, phone };
+        localStorage.setItem('gomini_uName', name);
+        localStorage.setItem('gomini_uPhone', phone);
+        document.getElementById('loginModal').classList.add('hidden');
+        document.getElementById('displayUserName').innerText = name;
+        addMsg(`नमस्ते ${name} जी! पटेल ट्रेडर्स के सपोर्ट पोर्टल पर आपका स्वागत है।`, 'ai');
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('userInput');
+        const text = input.value.trim();
+        if(!text) return;
+
+        addMsg(text, 'user');
+        input.value = "";
+        toggleSendBtn();
+        showThinking(true);
+
+        let isAdmin = sessionStorage.getItem('gomini_admin') === 'true';
+
+        if(text.toLowerCase().includes("admin955") || text.toLowerCase().includes("redmi 955")) {
+            activateAdminUI();
+            showThinking(false);
+            addMsg("✅ संजय भाई, एडमिन मोड सक्रिय है। अब आप 'सवाल | जवाब' लिखकर मुझे सिखा सकते हैं।", 'ai');
+            return;
+        }
+
+        if(isAdmin && text.includes("|")) {
+            let parts = text.split("|");
+            try {
+                let learnUrl = `${CONFIG.url}?token=${CONFIG.token}&action=learn&q=${encodeURIComponent(parts[0].trim())}&a=${encodeURIComponent(parts[1].trim())}&key=${CONFIG.master_key}`;
+                await fetch(learnUrl, {mode: 'no-cors'});
+                showThinking(false);
+                addMsg("✅ संजय भाई, यह जानकारी 'Brain' में सेव हो गई है।", 'ai');
+            } catch(e) {
+                showThinking(false);
+                addMsg("Error: सेव नहीं हो पाया।", 'ai');
+            }
+            return;
+        }
+
+        try {
+            let res = await fetch(`${CONFIG.url}?token=${CONFIG.token}&action=askJarvis&q=${encodeURIComponent(text)}&phone=${userInfo.phone}`);
+            let data = await res.json();
+            showThinking(false);
+            addMsg(data.answer, 'ai');
+        } catch(e) {
+            showThinking(false);
+            addMsg("माफ़ कीजिये, सर्वर अभी व्यस्त है।", 'ai');
+        }
+    }
+
+    function addMsg(text, sender) {
+        const body = document.getElementById('chatBody');
         const div = document.createElement('div');
-        div.className = type;
-        div.innerText = text;
-        chatDisplay.appendChild(div);
-        chatDisplay.scrollTop = chatDisplay.scrollHeight;
-        return div;
+        if(sender === 'ai') {
+            div.className = "message-bubble bg-white p-5 rounded-[28px] rounded-tl-none border border-gray-100 text-gray-800 text-sm font-bold shadow-sm";
+            div.innerHTML = `<span class="text-[10px] text-orange-500 block mb-1">PT GOMINI</span>${text}`;
+        } else {
+            div.className = "message-bubble bg-orange-500 p-5 rounded-[28px] rounded-tr-none text-white text-sm font-bold ml-auto shadow-lg";
+            div.innerText = text;
+        }
+        body.appendChild(div);
+        body.scrollTop = body.scrollHeight;
+    }
+
+    function showThinking(show) {
+        document.getElementById('thinkingIndicator').classList.toggle('hidden', !show);
+        const body = document.getElementById('chatBody');
+        body.scrollTop = body.scrollHeight;
     }
 </script>
 </body>
