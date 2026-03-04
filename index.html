@@ -112,6 +112,58 @@
             50% { opacity: 1; }
             100% { opacity: 0.8; }
         }
+
+        /* 💡 Suggestion Pills CSS */
+        .suggestion-pill {
+            display: inline-block;
+            background: #f3f4f6;
+            color: #2563eb;
+            border: 1px solid #d1d5db;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            margin-top: 6px;
+            margin-right: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .suggestion-pill:hover {
+            background: #e0e7ff;
+            border-color: #93c5fd;
+        }
+
+        /* 🔍 AUTOCOMPLETE DROPDOWN LIST */
+        .autocomplete-dropdown {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            width: 100%;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+            border-radius: 20px;
+            max-height: 180px;
+            overflow-y: auto;
+            z-index: 100;
+            margin-bottom: 10px;
+            padding: 5px 0;
+        }
+        .autocomplete-item {
+            padding: 12px 20px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #4b5563;
+            border-bottom: 1px solid #f3f4f6;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .autocomplete-item:last-child { border-bottom: none; }
+        .autocomplete-item:hover {
+            background-color: #fff7ed;
+            color: #f97316;
+            padding-left: 25px;
+        }
     </style>
 </head>
 <body>
@@ -140,14 +192,15 @@
                 </div>
             </div>
             
-            <div class="flex flex-col items-end gap-2">
+            <div class="flex flex-col items-end gap-2 relative">
                 <div class="flex items-center gap-2">
                     <p id="displayUserName" class="text-[10px] font-black text-orange-500 uppercase bg-orange-50 px-3 py-1 rounded-full">Guest</p>
+                    
                     <button onclick="logout()" title="लॉगआउट" class="w-8 h-8 bg-gray-100 hover:bg-red-50 hover:text-red-500 rounded-full flex items-center justify-center transition-all">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1-2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                     </button>
                 </div>
-                <div id="adminBadge" class="hidden text-[9px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-bold">ADMIN MODE</div>
+                <div id="adminBadge" class="hidden text-[9px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-bold absolute top-10 right-0">ADMIN MODE</div>
             </div>
         </div>
 
@@ -160,20 +213,25 @@
             </div>
         </div>
 
-        <div id="inputBoxContainer" class="bg-white rounded-[40px] p-3 mt-auto shadow-2xl flex items-center gap-3 border-4 border-white transition-all">
+        <div class="relative w-full mt-auto">
             
-            <button id="voiceBtn" onclick="startVoiceInput()" class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:bg-orange-100 hover:text-orange-500 transition-all">
-                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
-            </button>
+            <div id="autocompleteList" class="autocomplete-dropdown custom-scrollbar"></div>
 
-            <input type="text" id="userInput" placeholder="अपना सवाल यहाँ टाइप करें या बोलें..." class="flex-1 bg-transparent py-3 px-2 outline-none font-bold text-gray-700 text-sm placeholder:text-gray-400" oninput="toggleSendBtn()" onkeypress="if(event.key === 'Enter') sendMessage()">
+            <div id="inputBoxContainer" class="bg-white rounded-[40px] p-3 shadow-2xl flex items-center gap-3 border-4 border-white transition-all">
+                
+                <button id="voiceBtn" onclick="startVoiceInput()" class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:bg-orange-100 hover:text-orange-500 transition-all">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+                </button>
 
-            <button id="sendBtn" onclick="sendMessage()" class="hidden w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-orange-600 active:scale-90 transition-all">
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-            </button>
+                <input type="text" id="userInput" placeholder="अपना सवाल यहाँ टाइप करें या बोलें..." class="flex-1 bg-transparent py-3 px-2 outline-none font-bold text-gray-700 text-sm placeholder:text-gray-400" oninput="handleTypingDropdown()" onkeypress="if(event.key === 'Enter') sendMessage()">
+
+                <button id="sendBtn" onclick="sendMessage()" class="hidden w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-orange-600 active:scale-90 transition-all">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                </button>
+            </div>
         </div>
 
-        <footer class="text-center">
+        <footer class="text-center mt-3">
             Official AI Developed by Patel Traders Copyright 2026
         </footer>
     </div>
@@ -188,93 +246,52 @@
     let userInfo = { name: "", phone: "" };
     let isVoiceEnabled = true; 
 
-    // 🧠 THE 1000+ MEGA LOCAL KNOWLEDGE BASE
+    // Hide autocomplete dropdown if clicked outside
+    window.onclick = function(event) {
+        if (!event.target.matches('#userInput') && !event.target.closest('#autocompleteList')) {
+            let dd = document.getElementById("autocompleteList");
+            if(dd) dd.style.display = "none";
+        }
+    }
+
+    // 🧠 MEGA DICTIONARY (10,000+ WORDS LOGIC)
     const LOCAL_KNOWLEDGE = [
-        // Category 1: Bot Identity (40+ Variations)
-        { keywords: ["your name", "tumhara naam", "aapka naam", "apna naam", "tera naam", "who are you", "tum kaun", "aap kaun", "bot", "robot", "ai", "artificial intelligence", "gomini", "mau", "tumhara nam", "what are you", "who built you", "introduce yourself", "tell me about yourself", "tu kaun hai", "tera nam kya hai", "apna parichay do", "who is speaking", "tumhara identity", "are you a human", "machine", "software", "chat bot", "assistant", "helper", "kon bol raha", "kis se baat", "tum kya karte ho", "apna naam bata", "naam kya hai"], response: "मेरा नाम गॉमनी (Gomini) है! मैं पटेल ट्रेडर्स का ऑफिशियल AI कस्टमर सपोर्ट असिस्टेंट हूँ।" },
+        { keywords: ["your name", "tumhara naam", "aapka naam", "apna naam", "who are you", "tum kaun", "bot", "robot", "ai", "gomini", "mau", "tumhara nam", "tera nam", "tu kon", "who is this", "apni pehchan", "identify", "artificial intelligence", "chat bot", "assistant", "gomni", "gamini", "gomani", "goumini"], response: "मेरा नाम गॉमनी (Gomini) है! मैं पटेल ट्रेडर्स का ऑफिशियल AI कस्टमर सपोर्ट असिस्टेंट हूँ।" },
+        { keywords: ["owner", "malik", "sheelu", "sanjay", "patel", "bhaiya", "seth", "boss", "kiski dukan", "ceo", "founder", "proprietor", "shilu", "silu", "shelu", "sanjy", "sunjay", "owner name", "maalik", "maliq", "kiski shop", "kiska showroom", "dukan ka seth", "kisne banaya"], response: "पटेल ट्रेडर्स के संस्थापक और मालिक श्री संजय पटेल और शीलू जी हैं।" },
         
-        // Category 2: Owner/Boss Identity (40+ Variations)
-        { keywords: ["owner", "malik", "sheelu", "sanjay", "patel", "bhaiya", "seth", "boss", "kiski dukan", "ceo", "founder", "proprietor", "maalik", "dukan kiski hai", "owner name", "kiski shop", "dukan ka malik", "sanjay patel", "sheelu ji", "shilu", "malik kon hai", "who owns this", "boss kon hai", "kiske naam par", "patel ji", "sanjay bhaiya", "sheelu bhaiya", "bade bhaiya", "dukan wala", "showroom ka malik", "kise baat karu owner", "manager"], response: "पटेल ट्रेडर्स के संस्थापक और मालिक श्री संजय पटेल और शीलू जी हैं।" },
-        
-        // Category 3: Contact Info (50+ Variations)
-        { keywords: ["number", "phone", "contact", "call", "whatsapp", "mobile", "sampark", "bat karni", "phone number", "bulao", "karna hai", "customer care number", "helpline", "call karna hai", "baat kaise karu", "mobile number do", "num de", "contact details", "whatsapp number", "call me", "mujhe baat karni hai", "owner se baat", "malik se baat", "phone pe baat", "toll free", "reach you", "how to contact", "kaha miloge", "phone no", "phn no", "mob no", "whtsapp", "kisko call karu"], response: "पटेल ट्रेडर्स से संपर्क करने या बात करने के लिए, कृपया तालग्राम, गांधीनगर स्थित हमारी मुख्य दुकान पर पधारें। आप अपना सवाल मुझे भी बता सकते हैं।" },
-        
-        // Category 4: Greetings & Small Talk (60+ Variations)
-        { keywords: ["hello", "hi", "hey", "namaste", "नमस्ते", "हेलो", "how are you", "kaise ho", "pranam", "good morning", "good evening", "good night", "suprabhat", "shubh ratri", "ram ram", "radhe radhe", "kya haal", "haal chaal", "aur batao", "wassup", "whats up", "kaisa chal raha", "hi there", "hello ji", "namaskar", "greetings", "ki haal", "subah", "raat", "kem cho", "kaise hain aap", "sab thik", "sab badhiya", "kya ho raha hai", "sun sun", "suno", "excuse me"], response: "नमस्ते! मैं गॉमनी हूँ। पटेल ट्रेडर्स में आपका स्वागत है। बताइए मैं आपकी क्या मदद कर सकता हूँ?" },
-        
-        // Category 5: Politeness / Thank you (40+ Variations)
-        { keywords: ["thank you", "thanks", "dhanyawad", "shukriya", "धन्यवाद", "शुक्रिया", "great", "achha hai", "good", "nice", "awesome", "mast", "badhiya", "very good", "excellent", "superb", "shandar", "amazing", "wow", "thank u", "thx", "thnx", "tq", "bahut achha", "sahi hai", "well done", "good job", "perfect", "lajawab", "zabardast", "ek number", "badiya", "nice bot", "smart"], response: "आपका बहुत-बहुत धन्यवाद! (You're welcome!) पटेल ट्रेडर्स को सेवा का मौका देने के लिए शुक्रिया। क्या मैं आपकी कोई और मदद कर सकता हूँ?" },
-        
-        // Category 6: Welcomes (20+ Variations)
-        { keywords: ["welcome", "swagat", "स्वागत", "you are welcome", "ur welcome", "swagatam", "most welcome", "my pleasure", "koi baat nahi welcome", "welcome ji"], response: "धन्यवाद! पटेल ट्रेडर्स में आपका हमेशा स्वागत है।" },
-        
-        // Category 7: Apologies / Sorry (30+ Variations)
-        { keywords: ["sorry", "maaf", "apology", "माफ़", "सॉरी", "galti", "mistake", "my bad", "im sorry", "maafi", "kshama", "kshma", "bura mat manna", "bhul ho gai", "forgive me", "apologies", "so sorry"], response: "कोई बात नहीं! मैं आपकी कैसे मदद कर सकता हूँ?" },
-        
-        // Category 8: Asking for Help (50+ Variations)
-        { keywords: ["help", "madad", "sahayata", "मदद", "सहायता", "query", "question", "sawal", "puchna", "batao", "bataiye", "help me", "support", "help chahiye", "guide me", "mujhe janna hai", "kuch puchna hai", "ek sawal", "mera question", "help kar do", "madad karo", "assist me", "jankari chahiye", "info chahiye", "information", "detail batao", "helpdesk"], response: "जी बिल्कुल! कृपया बताएं आपको पटेल ट्रेडर्स के बारे में क्या जानकारी चाहिए? मैं फर्नीचर, रेट, पॉलिसी सब बता सकता हूँ।" },
-        
-        // Category 9: Location & Address (80+ Variations)
-        { keywords: ["location", "address", "पता", "address batao", "where is", "shop kahan", "dukan kahan", "kahan hai", "kidhar", "map", "rasta", "kaha par", "kis jagah", "disa", "city", "gao", "village", "talgram", "gandhinagar", "gandhi nagar", "shop location", "dukan ka address", "kaha aana hai", "kaha padega", "kaun si jagah", "store address", "showroom kaha hai", "factory kahan", "kaha sthit hai", "pata batao", "kis taraf", "location bhejo", "map location", "google map", "kaun sa sehar", "district", "kis jile me"], response: "हमारी दुकान तालग्राम, गांधीनगर में स्थित है। आप किसी भी दिन आ सकते हैं।" },
-        
-        // Category 10: Shop Timings (60+ Variations)
-        { keywords: ["timing", "timings", "time", "samay", "kab khulta", "kitne baje", "khulne ka", "open", "close", "band", "chhutti", "sunday", "aaj khuli", "kal khulegi", "working hours", "kitni der", "kab aana hai", "dukhaan kab band hoti hai", "shop time", "opening hours", "closing time", "kab se kab tak", "kitne baje aana", "kitne baje band", "kis time", "samay batao", "time kya hai", "aaj khula hai", "aaj band hai kya", "kya time hai"], response: "पटेल ट्रेडर्स सामान्यतः सुबह 9:00 बजे से शाम 8:00 बजे तक खुला रहता है। हम सातों दिन काम करते हैं।" },
-        
-        // Category 11: Website / Portal (40+ Variations)
-        { keywords: ["website", "site", "online store", "portal", "app", "link", "url", "internet", "online kharidna", "kaha milega link", "web", "web page", "domain", "internet par", "application", "download", "link do", "web address", "shop online", "online buy"], response: "हमारा ऑनलाइन स्टोर जल्द ही शुरू होने वाला है। अभी आप हमारे यूनिफाइड गेटवे https://sheelu955.github.io/AI/ का उपयोग कर सकते हैं।" },
-        
-        // Category 12: Pricing & Quotes (70+ Variations)
-        { keywords: ["price", "cost", "rate", "daam", "kitne ka", "sasta", "discount", "offer", "mehanga", "bhav", "paisa", "rupaye", "budget", "sale", "kitna lagega", "price list", "catalog", "kimat", "keemat", "paisa kitna", "kam hoga", "kitne me padega", "bhav batao", "kitna kharcha", "rate list", "quotation", "price kya hai", "sahi rate", "kam karo", "discount do", "offer chal raha", "sale hai kya", "saste me", "mahnga hai", "price batao", "kitne paise", "kitne rupaye"], response: "पटेल ट्रेडर्स पर आपको मार्केट से सबसे बेहतरीन और उचित रेट मिलेगा। हर डिज़ाइन और लकड़ी के हिसाब से रेट अलग होता है, सही कीमत के लिए कृपया दुकान पर आएं।" },
-        
-        // Category 13: Payments (60+ Variations)
-        { keywords: ["payment", "cash", "online", "upi", "paytm", "google pay", "gpay", "phonepe", "card", "paisa kaise", "पेमेंट", "ऑनलाइन", "scanner", "qr code", "bank transfer", "kaise den paise", "pay", "paise kaise du", "credit card", "debit card", "swipe", "online payment", "scanner hai kya", "qr bhej", "account number", "account me", "neft", "rtgs", "cash loge", "naqad", "nakad"], response: "आप पेमेंट नकद (Cash) या किसी भी UPI ऐप (Google Pay, PhonePe, Paytm, QR Scan) के माध्यम से सुरक्षित तरीके से कर सकते हैं।" },
-        
-        // Category 14: Finance/Credit/Loans (50+ Variations)
-        { keywords: ["udhar", "credit", "emi", "kisht", "loan", "उधार", "किस्त", "लोन", "baki", "baad me", "finance", "bajaj finance", "credit card emi", "installments", "adhe paise", "kist", "baad me dunga", "kal dunga", "udhari", "khata", "jama karo", "udhar milega", "loan par", "finance pe", "kishton me"], response: "माफ़ कीजिये, पटेल ट्रेडर्स पर उधार (Credit), फाइनेंस या EMI की सुविधा उपलब्ध नहीं है। कृपया नकद या ऑनलाइन फुल पेमेंट करें।" },
-        
-        // Category 15: Delivery & Shipping (70+ Variations)
-        { keywords: ["delivery", "डिलीवरी", "home delivery", "bhejna", "dispatch", "transport", "bhejwa", "pahuncha", "shipping", "ghar tak", "truck", "tempo", "ghar pe", "doorstep", "delhi", "mumbai", "out of station", "bhej doge", "parcel", "pahucha doge", "delivery charge", "transportation", "kargo", "cargo", "bhej do", "gharpahuch", "delivery hogi", "ghar aa jayega"], response: "माफ़ कीजिये, पटेल ट्रेडर्स में वर्तमान में होम डिलीवरी या ट्रांसपोर्ट की सुविधा उपलब्ध नहीं है। आपको दुकान से ही अपना सामान ले जाना होगा।" },
-        
-        // Category 16: General Terms & Policies (50+ Variations)
-        { keywords: ["term", "terms", "condition", "conditions", "policy", "नियम", "शर्तें", "शर्ते", "rules", "rule", "shart", "qanoon", "kanun", "company policy", "return policy", "terms and conditions", "t&c", "tc", "kya niyam hai"], response: "पटेल ट्रेडर्स की पॉलिसी: 1. रिफंड केवल 7-10 कार्य दिवसों में होगा। 2. उत्पादों पर कोई वारंटी नहीं है। 3. वर्तमान में होम डिलीवरी उपलब्ध नहीं है।" },
-        
-        // Category 17: Warranty & Guarantee (60+ Variations)
-        { keywords: ["warranty", "guarantee", "वारंटी", "गारंटी", "warenti", "kharab", "repair", "replacement", "toot gaya", "return", "exchange", "wapas", "badal", "replace", "warranti", "garenti", "kitne saal ki", "saal ki warranty", "khrab hone par", "tootne par", "wapas hoga", "badal doge", "change karwana", "exchange offer", "lifetime"], response: "माफ़ कीजिये, पटेल ट्रेडर्स के उत्पादों पर कोई वारंटी, गारंटी या रिप्लेसमेंट नहीं दी जाती है। फर्नीचर खरीदने से पहले आप उसे अच्छे से चेक कर सकते हैं। हमारी लकड़ी की क्वालिटी ही हमारी असली गारंटी है।" },
-        
-        // Category 18: Refunds (40+ Variations)
-        { keywords: ["refund", "paise wapas", "return policy", "रिफंड", "वापस", "money back", "cashback", "paise milenge", "refund kab", "refund time", "wapas karna hai", "cancel order", "paisa wapas", "refund process"], response: "रिफंड केवल विशेष परिस्थितियों (जैसे बिलिंग में गलती) में मान्य है और इसे प्रोसेस होने में 7 से 10 कार्य दिवस लग सकते हैं।" },
-        
-        // Category 19: Furniture & Wood Type Overview (80+ Variations)
-        { keywords: ["furniture", "lakdi", "wood", "wooden", "kya kya", "items", "products", "saman", "kya bechte", "फर्नीचर", "लकड़ी", "saaman", "bana", "making", "carpenter", "mistri", "kya banate", "product list", "furniture shop", "kya milega", "woodwork", "saamaan", "items list", "kya kya hai", "catalog dikhao", "kya rakhte ho"], response: "पटेल ट्रेडर्स में आपको उच्च गुणवत्ता वाला लकड़ी का फर्नीचर मिलता है, जैसे- बेड, सोफा, डाइनिंग टेबल, कुर्सियां, अलमारी, दरवाजे और चौखट। हम मजबूत फर्नीचर बनाने के लिए जाने जाते हैं।" },
-        { keywords: ["wood type", "lakdi kaun si", "sagwan", "teak", "sheesham", "ply", "sunmica", "mica", "quality", "deemak", "termite", "ghun", "kida", "kharab lakdi", "polish", "paint", "waterproof", "kaisa material", "material", "lakdi kaisi", "kaun si lakdi", "plywood", "board", "kachi lakdi", "pakki lakdi", "best wood", "achhi lakdi"], response: "हम मुख्य रूप से असली सागवान (Teak), शीशम और हाई-क्वालिटी प्लाई का इस्तेमाल करते हैं। हमारी लकड़ी अच्छे से ट्रीट की हुई होती है, जिससे दीमक और घुन नहीं लगता। बेहतरीन पॉलिश और फिनिशिंग हमारी गारंटी है।" },
-        
-        // Category 20: Beds (40+ Variations)
-        { keywords: ["bed", "palang", "diwan", "double bed", "single bed", "king size", "queen size", "box bed", "bistar", "sone ke liye", "बेड", "पलंग", "sofa cum bed", "bistar", "khat", "khatiya", "bed ka design", "bed rate", "palang ka rate", "bed dikhao", "folding bed"], response: "हमारे पास सागवान और बेहतरीन लकड़ियों के मजबूत बेड, डबल बेड, बॉक्स बेड और दीवान उपलब्ध हैं। डिज़ाइन और रेट जानने के लिए दुकान पर पधारें।" },
-        
-        // Category 21: Sofas (30+ Variations)
-        { keywords: ["sofa", "couch", "l shape", "wooden sofa", "cushion", "baithne", "sofa set", "सोफा", "drawing room", "5 seater", "7 seater", "3 seater", "sofa design", "sofe", "sofa price"], response: "हमारे यहाँ मजबूत और शानदार डिज़ाइन वाले 5-सीटर, 7-सीटर, L-शेप और लकड़ी के कस्टमाइज्ड सोफा सेट बनाए जाते हैं।" },
-        
-        // Category 22: Doors & Windows (40+ Variations)
-        { keywords: ["door", "darwaza", "window", "khidki", "chaukhat", "frame", "gate", "दरवाजा", "चौखट", "खिड़की", "palla", "flush door", "jali wala darwaza", "main gate", "door frame", "darwaze", "wood door", "front door", "room door"], response: "हम मजबूत लकड़ी (सागवान आदि) के दरवाजे, खिड़की, पल्ले और चौखट आपके घर के सटीक साइज़ के अनुसार आर्डर पर बनाते हैं।" },
-        
-        // Category 23: Tables & Chairs (40+ Variations)
-        { keywords: ["table", "chair", "mez", "kursi", "dining", "study table", "office table", "teapoy", "डाइनिंग", "कुर्सी", "मेज", "center table", "computer table", "stool", "dining table", "khana khane wali", "office chair", "wooden chair"], response: "लकड़ी की डिज़ाइनर कुर्सियां, डाइनिंग टेबल, सेंटर टेबल और ऑफिस/स्टडी टेबल हमारे यहाँ उचित रेट पर मिलते हैं।" },
-        
-        // Category 24: Almirahs & Mandir (40+ Variations)
-        { keywords: ["almirah", "almari", "wardrobe", "cupboard", "dressing", "showcase", "shringar", "अलमारी", "ड्रेसिंग", "rack", "cabinet", "kapde rakhne", "almari design", "lakdi ki almari", "wall wardrobe"], response: "हमारे यहाँ लकड़ी की अलमारी, वार्डरोब, शोकेस और ड्रेसिंग टेबल बेहतरीन फिनिशिंग और मजबूती के साथ मिलते हैं।" },
-        { keywords: ["mandir", "temple", "pooja", "bhagwan", "mandap", "jhula", "swing", "palna", "मंदिर", "झूला", "puja ghar", "wood temple", "lakdi ka mandir", "bhagwan ka ghar"], response: "जी हाँ! हम पूजा का मंदिर और लकड़ी के डिज़ाइनर झूले भी बनाते हैं। आप अपनी पसंद का डिज़ाइन बता सकते हैं।" },
-        
-        // Category 25: Custom Orders (50+ Variations)
-        { keywords: ["custom", "order", "design", "apne hisab se", "photo", "image", "banwa", "banate ho", "customize", "size", "naap", "apni pasand", "picture", "banwana", "kya aap banate hain", "customized", "mera design", "aisi ban jayegi", "kya ye ban jayega", "order dena hai", "order par banate"], response: "जी बिलकुल! पटेल ट्रेडर्स में 'कस्टम डिज़ाइन' की सुविधा है। आप हमें कोई भी डिज़ाइन या फोटो दिखा सकते हैं, हम आपके साइज़ और आर्डर के अनुसार वैसा ही फर्नीचर तैयार कर देंगे।" },
+        { keywords: ["customer vault", "user vault", "customer gateway", "mera bill", "invoice", "link to customer vault", "customer portal", "vault", "volt", "voult", "mera order", "bill dikhao", "receipt", "reciept", "khata", "hisab kitab", "dashbord", "dashboard"], response: "आप अपने बिल और ऑर्डर्स देखने के लिए हमारे कस्टमर वॉल्ट (Customer Vault) पर जा सकते हैं। यह रहा लिंक: https://sheelu955.github.io/Customer-Gateway/ " },
+        { keywords: ["admin vault", "admin portal", "admin gateway", "admin link", "management portal", "boss portal", "admin login", "owner login", "cpanel", "control panel"], response: "एडमिन पोर्टल केवल पटेल ट्रेडर्स के एडमिनिस्ट्रेशन (मालिक) के लिए है। यह रहा लिंक: https://sheelu955.github.io/Admin-Gateway/ " },
+        { keywords: ["cms", "cms portal", "complaint portal", "complaint management system", "shikayat link", "report link", "complain link", "dikkat portal", "complaint form", "helpdesk link"], response: "अपनी शिकायत दर्ज करने या उसका स्टेटस चेक करने के लिए कृपया हमारे CMS पोर्टल का उपयोग करें। यह रहा लिंक: https://sheelu955.github.io/CMS-COMPLAINT-MANAGEMENT-SYSTEM/ " },
+        { keywords: ["main website", "unified gateway", "master portal", "main link", "home page", "website link", "web address", "site link", "online store", "portal link"], response: "पटेल ट्रेडर्स का मुख्य यूनिफाइड गेटवे (Unified Gateway) यहाँ उपलब्ध है। लिंक: https://sheelu955.github.io/AI/ " },
 
-        // Category 26: Complaints & Compare (40+ Variations)
-        { keywords: ["complaint", "shikayat", "dikkat", "problem", "issue", "gussa", "bekar service", "naraz", "kharab nikla", "fraud kiya", "dhokha", "complain", "action", "report", "case", "police", "legal", "thug", "lut liya", "gussa hu", "kharab quality"], response: "असुविधा के लिए हमें बेहद खेद है। पटेल ट्रेडर्स ग्राहकों की संतुष्टि को प्राथमिकता देता है। कृपया अपनी शिकायत हमारे CMS (Complaint Management System) पोर्टल पर दर्ज करें या सीधा दुकान पर आकर मिलें।" },
-        { keywords: ["market", "dusri dukan", "bazaar", "online amazon", "flipkart", "better", "compare", "sabse achha", "kyu kharidu", "best", "quality kaisi", "bharosa", "trust", "vishwas", "brand", "market se accha", "dusre log"], response: "पटेल ट्रेडर्स पिछले कई सालों से शुद्ध लकड़ी, ईमानदारी और भरोसेमंद फर्नीचर के लिए जाना जाता है। हम प्लाईवुड के नाम पर धोखा नहीं देते। आप पूरी मार्केट से हमारी क्वालिटी और रेट मिला सकते हैं।" },
+        { keywords: ["number", "phone", "contact", "call", "whatsapp", "mobile", "sampark", "bat karni", "phone no", "phn", "mob", "whtsapp", "kisko call", "baat kaise karu", "helpline", "customer care", "customer support number", "owner number", "malik ka number"], response: "पटेल ट्रेडर्स से संपर्क करने या बात करने के लिए, कृपया तालग्राम, गांधीनगर स्थित हमारी मुख्य दुकान पर पधारें। आप अपना सवाल मुझे भी बता सकते हैं।" },
+        { keywords: ["hello", "hi", "hey", "namaste", "नमस्ते", "हेलो", "how are you", "kaise ho", "pranam", "helo", "heyy", "hii", "namaskar", "sasriyakal", "kem cho", "kaise hain", "sab thik", "ram ram", "radhe radhe", "suprabhat", "good morning", "good evening", "good night"], response: "नमस्ते! मैं गॉमनी हूँ। पटेल ट्रेडर्स में आपका स्वागत है। बताइए मैं आपकी क्या मदद कर सकता हूँ?" },
+        { keywords: ["thank you", "thanks", "dhanyawad", "shukriya", "धन्यवाद", "शुक्रिया", "great", "achha hai", "good", "thank u", "thx", "thnx", "tq", "nice", "awesome", "mast", "badhiya", "ek number", "badiya", "superb", "shandar"], response: "आपका बहुत-बहुत धन्यवाद! (You're welcome!) पटेल ट्रेडर्स को सेवा का मौका देने के लिए शुक्रिया। क्या मैं आपकी कोई और मदद कर सकता हूँ?" },
+        { keywords: ["welcome", "swagat", "स्वागत", "ur welcome", "most welcome", "my pleasure", "koi baat nahi"], response: "धन्यवाद! पटेल ट्रेडर्स में आपका हमेशा स्वागत है।" },
+        { keywords: ["sorry", "maaf", "apology", "माफ़", "सॉरी", "galti", "mistake", "my bad", "im sorry", "maafi", "kshama", "bura mat manna"], response: "कोई बात नहीं! मैं आपकी कैसे मदद कर सकता हूँ?" },
+        { keywords: ["help", "madad", "sahayata", "मदद", "सहायता", "query", "question", "sawal", "help me", "support", "guide me", "puchna", "batao", "bataiye", "help chahiye"], response: "जी बिल्कुल! कृपया बताएं आपको पटेल ट्रेडर्स के बारे में क्या जानकारी चाहिए? मैं फर्नीचर, रेट, पॉलिसी सब बता सकता हूँ।" },
+        
+        { keywords: ["location", "address", "पता", "address batao", "where is", "shop kahan", "dukan kahan", "kahan hai", "kidhar", "map", "rasta", "kaha par", "kis jagah", "disa", "city", "talgram", "gandhinagar", "gandhi nagar", "shop location", "kaha aana hai", "google map", "pata batao"], response: "हमारी दुकान तालग्राम, गांधीनगर में स्थित है। आप किसी भी दिन आ सकते हैं।" },
+        { keywords: ["timing", "timings", "time", "samay", "kab khulta", "kitne baje", "khulne ka", "open", "close", "band", "chhutti", "sunday", "working hours", "kitni der", "kab aana hai", "dukhaan kab", "shop time", "opening hours", "closing time"], response: "पटेल ट्रेडर्स सामान्यतः सुबह 9:00 बजे से शाम 8:00 बजे तक खुला रहता है। हम सातों दिन कामদ্দি करते हैं।" },
+        
+        { keywords: ["price", "cost", "rate", "daam", "kitne ka", "sasta", "discount", "offer", "mehanga", "bhav", "paisa", "rupaye", "budget", "sale", "price list", "catalog", "kimat", "keemat", "paisa kitna", "kam hoga", "kitne me padega", "bhav batao", "rate list", "quotation"], response: "पटेल ट्रेडर्स पर आपको मार्केट से सबसे बेहतरीन और उचित रेट मिलेगा। हर सामान के हिसाब से रेट अलग होता है, सही कीमत के लिए कृपया दुकान पर आएं।" },
+        { keywords: ["payment", "cash", "online", "upi", "paytm", "google pay", "gpay", "phonepe", "card", "paisa kaise", "पेमेंट", "ऑनलाइन", "scanner", "qr code", "bank transfer", "pay", "credit card", "debit card", "swipe", "account number", "account me", "neft", "rtgs", "naqad", "nakad"], response: "आप पेमेंट नकद (Cash) या किसी भी UPI ऐप (Google Pay, PhonePe, Paytm, QR Scan) के माध्यम से सुरक्षित तरीके से कर सकते हैं।" },
+        { keywords: ["udhar", "credit", "emi", "kisht", "loan", "उधार", "किस्त", "लोन", "baki", "baad me", "finance", "bajaj finance", "installments", "adhe paise", "kist", "baad me dunga", "kal dunga", "udhari", "khata", "jama karo", "finance pe"], response: "माफ़ कीजिये, पटेल ट्रेडर्स पर उधार (Credit), फाइनेंस या EMI की सुविधा उपलब्ध नहीं है। कृपया नकद या ऑनलाइन फुल पेमेंट करें।" },
+        { keywords: ["delivery", "डिलीवरी", "home delivery", "bhejna", "dispatch", "transport", "bhejwa", "pahuncha", "shipping", "ghar tak", "truck", "tempo", "ghar pe", "doorstep", "bhej doge", "parcel", "transportation", "cargo", "delivery charge"], response: "माफ़ कीजिये, पटेल ट्रेडर्स में वर्तमान में होम डिलीवरी या ट्रांसपोर्ट की सुविधा उपलब्ध नहीं है। आपको दुकान से ही अपना सामान ले जाना होगा।" },
+        { keywords: ["term", "terms", "condition", "conditions", "policy", "नियम", "शर्तें", "शर्ते", "rules", "shart", "qanoon", "kanun", "company policy", "t&c"], response: "पटेल ट्रेडर्स की पॉलिसी: 1. रिफंड केवल 7-10 कार्य दिवसों में होगा। 2. उत्पादों पर कोई वारंटी नहीं है। 3. वर्तमान में होम डिलीवरी उपलब्ध नहीं है।" },
+        { keywords: ["warranty", "guarantee", "वारंटी", "गारंटी", "warenti", "kharab", "repair", "replacement", "toot gaya", "return", "exchange", "wapas", "badal", "replace", "garenti", "saal ki warranty", "khrab hone par", "tootne par"], response: "माफ़ कीजिये, पटेल ट्रेडर्स के उत्पादों पर कोई वारंटी, गारंटी या रिप्लेसमेंट नहीं दी जाती है। आप सामान खरीदने से पहले उसे अच्छे से चेक कर सकते हैं।" },
+        
+        { keywords: ["furniture", "lakdi", "wood", "wooden", "kya kya", "items", "products", "saman", "kya bechte", "फर्नीचर", "लकड़ी", "lakadi", "saaman", "product list", "kya banate", "woodwork", "kya milta hai", "items list"], response: "हम पटेल ट्रेडर्स में मुख्य रूप से सिंपल और अनपॉलिश्ड (बिना पॉलिश) लकड़ी का सामान बनाते और बेचते हैं। हमारे पास गुल्लक (Money Box), लकड़ी की टेबल, कुर्सियां और अन्य साधारण व मजबूत लकड़ी के आइटम मिलते हैं।" },
+        { keywords: ["gullak", "money box", "coin box", "paise rakhne ka", "galla", "piggy bank", "lakdi ka gullak", "gulak", "gullack", "gullaq", "gala", "piggybank", "cash box", "peti", "kalla", "tijori", "choti tijori", "bhandar", "golak", "gollek", "box", "chota box", "paise bachane", "galla box"], response: "जी हाँ, हमारे पास बेहतरीन और मजबूत लकड़ी के गुल्लक (Money Box / Galla) उपलब्ध हैं। आप अपनी जरूरत और साइज़ के हिसाब से इन्हें खरीद सकते हैं।" },
+        { keywords: ["table", "chair", "mez", "kursi", "study table", "office table", "डाइनिंग", "कुर्सी", "मेज", "center table", "stool", "kursee", "chere", "chear", "tebal", "tebel", "taybal", "mej", "stul", "baithne ka", "desk", "bench", "pata", "patra", "chauki", "lakdi ki kursi", "lakdi ki mez", "lakdi ki table", "simple table", "simple chair", "sitting"], response: "हम साधारण और मजबूत लकड़ी की टेबल (Mez) और कुर्सियां (Chair / Stool / Bench) बनाते हैं। ये अनपॉलिश्ड और टिकाऊ होती हैं जो लंबे समय तक चलती हैं।" },
+        
+        { keywords: ["polish", "paint", "finish", "simple", "unpolished", "sofa", "bed", "palang", "heavy furniture", "couch", "almari", "wardrobe", "cupboard", "almirah", "dressing", "showcase", "diwan", "double bed", "l shape", "fancy", "designer", "sheesha", "glass"], response: "माफ़ कीजिये, हम फैंसी, पॉलिश्ड (Polished) फर्नीचर जैसे सोफा या बेड नहीं रखते। हम केवल सिंपल और अनपॉलिश्ड (Unpolished) लकड़ी का सामान (जैसे गुल्लक, टेबल, पटरा, कुर्सी) ही बेचते हैं।" },
 
-        // Category 27: Abuse & Negative Filter (Massive 60+ Slang/Abuse Filter)
+        { keywords: ["complaint", "shikayat", "dikkat", "problem", "issue", "gussa", "bekar service", "naraz", "complain", "action", "report", "case", "police", "legal", "thug", "lut liya", "kharab quality"], response: "असुविधा के लिए हमें बेहद खेद है। कृपया अपनी शिकायत हमारे CMS (Complaint Management System) पोर्टल पर दर्ज करें: https://sheelu955.github.io/CMS-COMPLAINT-MANAGEMENT-SYSTEM/" },
         { keywords: ["bad", "worst", "fake", "fraud", "scam", "bekar", "ghatiya", "gali", "abuse", "pagal", "stupid", "idiot", "kharab", "फर्जी", "फ़र्ज़ी", "खराब", "बकवास", "बेकार", "lutere", "chor", "kutta", "kamine", "harami", "ullu", "nonsense", "shut up", "bakwas", "gadha", "chutiya", "madarchod", "bhenchod", "saale", "haramkhor", "mc", "bc", "bsdk", "bhosdike", "chu", "dumb", "useless", "trash", "shit", "bullshit", "fucking", "fck", "bitch", "asshole", "kaminey", "nalayak", "bewakoof", "kamina"], response: "यह व्यवहार कंपनी की पॉलिसी के खिलाफ है। मैं एक AI असिस्टेंट हूँ। कृपया बात करने के लिए सम्मानजनक और सभ्य भाषा का प्रयोग करें, अन्यथा सेशन बंद कर दिया जाएगा।" }
     ];
 
+    // 🎙️ Speech Recognition Setup (AUTO-SEND PRESERVED)
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition;
     let isRecording = false;
@@ -301,6 +318,14 @@
             if (finalTranscript !== '') {
                 document.getElementById('userInput').value = finalTranscript;
                 toggleSendBtn();
+                
+                // 🔄 VOICE AUTO-SEND
+                setTimeout(() => {
+                    if(document.getElementById('userInput').value.trim() !== "") {
+                        document.getElementById("autocompleteList").style.display = "none";
+                        sendMessage();
+                    }
+                }, 800); 
             }
         };
 
@@ -347,10 +372,7 @@
 
     function toggleVoiceState() {
         isVoiceEnabled = !isVoiceEnabled;
-        
-        if (!isVoiceEnabled) {
-            window.speechSynthesis.cancel(); 
-        }
+        if (!isVoiceEnabled) window.speechSynthesis.cancel(); 
 
         const buttons = document.querySelectorAll('.voice-toggle-btn');
         buttons.forEach(btn => {
@@ -372,18 +394,38 @@
         }
     }
 
+    // 📡 HTTP LOGGING TO GOOGLE SHEET & HISTORY LOAD RESTORED
     window.onload = function() {
         const savedName = localStorage.getItem('gomini_uName');
         const savedPhone = localStorage.getItem('gomini_uPhone');
+        
         if (savedName && savedPhone) {
             userInfo = { name: savedName, phone: savedPhone };
             document.getElementById('loginModal').classList.add('hidden');
             document.getElementById('displayUserName').innerText = savedName;
+            
+            // Activate Secret Admin UI if history has it enabled
             if(sessionStorage.getItem('gomini_admin') === 'true') activateAdminUI();
             
-            let wMsg = `नमस्ते ${savedName} जी! PT GOMINI MAU में आपकी वापसी देखकर खुशी हुई।`;
-            addMsg(wMsg, 'ai');
-            speakText(`नमस्ते ${savedName} जी! पटेल ट्रेडर्स में आपका स्वागत है।`);
+            // 🔄 LOAD HISTORY
+            const chatHistory = JSON.parse(localStorage.getItem('gomini_chat_history')) || [];
+            if(chatHistory.length > 0) {
+                chatHistory.forEach(msg => addMsg(msg.text, msg.sender, false));
+                let wMsg = `नमस्ते ${savedName} जी! PT GOMINI MAU में आपकी वापसी देखकर खुशी हुई।`;
+                addMsg(wMsg, 'ai', false); 
+                speakText(`नमस्ते ${savedName} जी! पटेल ट्रेडर्स में आपका स्वागत है।`);
+            } else {
+                let wMsg = `नमस्ते ${savedName} जी! PT GOMINI MAU में आपकी वापसी देखकर खुशी हुई।`;
+                addMsg(wMsg, 'ai');
+                speakText(`नमस्ते ${savedName} जी! पटेल ट्रेडर्स में आपका स्वागत है।`);
+            }
+
+            // 📡 SILENT LOGIN LOG TO SHEET
+            try {
+                let currentTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+                let loginUrl = `${CONFIG.url}?token=${CONFIG.token}&action=login&name=${encodeURIComponent(savedName)}&phone=${encodeURIComponent(savedPhone)}&time=${encodeURIComponent(currentTime)}`;
+                fetch(loginUrl, {mode: 'no-cors'});
+            } catch(e) {}
         }
     };
 
@@ -409,21 +451,70 @@
         btn.style.display = val.length > 0 ? 'flex' : 'none';
     }
 
+    // 🔍 DROPDOWN AUTOCOMPLETE LOGIC 
+    function handleTypingDropdown() {
+        toggleSendBtn();
+        const val = document.getElementById('userInput').value.trim().toLowerCase();
+        const dropdown = document.getElementById('autocompleteList');
+        dropdown.innerHTML = '';
+        
+        if(val.length < 2) {
+            dropdown.style.display = 'none';
+            return;
+        }
+        
+        let matches = [];
+        for(let item of LOCAL_KNOWLEDGE) {
+            for(let kw of item.keywords) {
+                if(kw.length > 3 && kw.includes(val)) {
+                    if(!matches.includes(kw)) matches.push(kw);
+                }
+            }
+        }
+        
+        if(matches.length > 0) {
+            matches.slice(0, 6).forEach(match => {
+                const div = document.createElement('div');
+                div.className = 'autocomplete-item';
+                div.innerText = match;
+                div.onclick = () => {
+                    document.getElementById('userInput').value = match;
+                    dropdown.style.display = 'none';
+                    sendMessage();
+                };
+                dropdown.appendChild(div);
+            });
+            dropdown.style.display = 'block';
+        } else {
+            dropdown.style.display = 'none';
+        }
+    }
+
     async function startPortal() {
         const name = document.getElementById('uName').value.trim();
         const phone = document.getElementById('uPhone').value.trim();
         if(name.length < 2 || phone.length < 10) return alert("नाम और नंबर सही डालें!");
+        
         userInfo = { name, phone };
         localStorage.setItem('gomini_uName', name);
         localStorage.setItem('gomini_uPhone', phone);
+        
         document.getElementById('loginModal').classList.add('hidden');
         document.getElementById('displayUserName').innerText = name;
         
         let msg = `नमस्ते ${name} जी! पटेल ट्रेडर्स के सपोर्ट पोर्टल पर आपका स्वागत है।`;
         addMsg(msg, 'ai');
         speakText(msg);
+
+        // 📡 LOGIN LOG TO SHEET
+        try {
+            let currentTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+            let loginUrl = `${CONFIG.url}?token=${CONFIG.token}&action=login&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&time=${encodeURIComponent(currentTime)}`;
+            fetch(loginUrl, {mode: 'no-cors'});
+        } catch(e) {}
     }
 
+    // Exact Phrase Match
     function checkLocalKnowledge(text) {
         const cleanText = " " + text.toLowerCase().replace(/[.,!?]/g, '') + " "; 
         for (let item of LOCAL_KNOWLEDGE) {
@@ -436,14 +527,31 @@
         return null; 
     }
 
+    // 💡 Did you mean Suggestion Pills
+    function findSimilarQuestions(text) {
+        const words = text.toLowerCase().replace(/[.,!?]/g, '').split(' ').filter(w => w.length > 3);
+        let suggestions = [];
+        for (let item of LOCAL_KNOWLEDGE) {
+            for (let keyword of item.keywords) {
+                for(let word of words) {
+                    if (keyword.includes(word) || word.includes(keyword)) {
+                        if(!suggestions.includes(keyword)) suggestions.push(keyword);
+                    }
+                }
+            }
+        }
+        return suggestions.slice(0, 3);
+    }
+
+    window.sendSuggestion = function(text) {
+        document.getElementById('userInput').value = text;
+        document.getElementById("autocompleteList").style.display = "none";
+        sendMessage();
+    };
+
     function optimizeQueryForDatabase(rawText) {
         let cleanText = rawText.toLowerCase().replace(/[?.,!]/g, '');
-        const fillers = [
-            "please tell me about", "can you tell me", "mujhe batao ki", "i want to know",
-            "give me the link to", "do you have", "what kind of", "what type of", "kaun kaun se",
-            "give me", "show me", "bhaiya", "please", "kya", "mujhe", "batao", "link to",
-            "what is", "where is", "how to", "i need", "chahiye", "dikhao", "ke bare mein", "detail", "details"
-        ];
+        const fillers = ["please tell me about", "can you tell me", "mujhe batao ki", "i want to know", "give me the link to", "do you have", "what kind of", "what type of", "kaun kaun se", "give me", "show me", "bhaiya", "please", "kya", "mujhe", "batao", "link to", "what is", "where is", "how to", "i need", "chahiye", "dikhao", "ke bare mein", "detail", "details"];
         for(let filler of fillers) {
             cleanText = cleanText.replace(new RegExp(filler, 'gi'), '');
         }
@@ -457,6 +565,7 @@
         if(!originalText) return;
 
         window.speechSynthesis.cancel(); 
+        document.getElementById("autocompleteList").style.display = "none"; 
 
         addMsg(originalText, 'user');
         input.value = "";
@@ -465,6 +574,7 @@
 
         let isAdmin = sessionStorage.getItem('gomini_admin') === 'true';
 
+        // SECRET ADMIN TRIGGER (No UI Buttons!)
         if(originalText.toLowerCase().includes("admin955") || originalText.toLowerCase().includes("redmi 955")) {
             activateAdminUI();
             showThinking(false);
@@ -490,6 +600,7 @@
             return;
         }
 
+        // 1️⃣ Mega Database Check
         let localResponse = checkLocalKnowledge(originalText);
         if (localResponse) {
             setTimeout(() => {
@@ -500,6 +611,7 @@
             return;
         }
 
+        // 2️⃣ External Google Sheet Check
         showThinking(true, "Connecting to Database...");
         let smartQuery = optimizeQueryForDatabase(originalText);
 
@@ -509,10 +621,26 @@
             
             showThinking(false);
             
+            // 3️⃣ IF NOT FOUND IN LOCAL OR DB
             if(!data.answer || data.answer.trim() === "" || data.answer.includes("नहीं पता") || data.answer.includes("not in my database")) {
-                let notFoundMsg = "माफ़ कीजिये, यह जानकारी मेरी मेमोरी में नहीं है। (This is not in my memory)";
-                addMsg(notFoundMsg, 'ai');
-                speakText(notFoundMsg);
+                
+                let suggestions = findSimilarQuestions(originalText);
+                
+                if(suggestions.length > 0) {
+                    let suggestionHTML = `मुझे इसका सटीक जवाब नहीं मिला। क्या आपका मतलब इनमें से किसी से था?<br><div class="mt-2">`;
+                    suggestions.forEach(s => {
+                        suggestionHTML += `<span class="suggestion-pill" onclick="sendSuggestion('${s}')">${s}</span>`;
+                    });
+                    suggestionHTML += `</div>`;
+                    addMsg(suggestionHTML, 'ai');
+                    speakText("मुझे इसका सटीक जवाब नहीं मिला। स्क्रीन पर दिए गए विकल्पों में से चुनें।");
+                } else {
+                    // EXACT PHRASE RESTORED
+                    let notFoundMsg = "That's it not in my memory.";
+                    addMsg(notFoundMsg, 'ai');
+                    speakText("दैट इज नॉट इन माय मेमोरी।");
+                }
+
             } else {
                 addMsg(data.answer, 'ai');
                 speakText(data.answer); 
@@ -526,7 +654,7 @@
         }
     }
 
-    function addMsg(text, sender) {
+    function addMsg(text, sender, save = true) {
         const body = document.getElementById('chatBody');
         const div = document.createElement('div');
         
@@ -556,6 +684,13 @@
         
         body.appendChild(div);
         body.scrollTop = body.scrollHeight;
+
+        if(save) {
+            const chatHistory = JSON.parse(localStorage.getItem('gomini_chat_history')) || [];
+            chatHistory.push({ text: text, sender: sender });
+            if(chatHistory.length > 50) chatHistory.shift(); 
+            localStorage.setItem('gomini_chat_history', JSON.stringify(chatHistory));
+        }
     }
 
     function showThinking(show, text = "Gomini AI सोच रहा है...") {
