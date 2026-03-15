@@ -3,708 +3,354 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PT GOMINI MAU | Customer Support</title>
+    <title>Gomini AI | Business Assistant</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;900&display=swap');
+        
+        :root { 
+            --bhagwa: #ff9933; 
+            --bhagwa-dark: #e68a00;
+            --bg-white: #ffffff;
+            --bg-gray: #f8f9fa;
+            --text-dark: #1f2937;
+        }
         
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); 
-            height: 100dvh; 
-            overflow: hidden; 
+            background: var(--bg-gray); 
+            color: var(--text-dark); 
             margin: 0; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            height: 100vh; display: flex; flex-direction: column; overflow: hidden;
         }
 
-        .chat-container { 
-            height: calc(100dvh - 240px); 
-            scroll-behavior: smooth; 
+        /* 🪟 PREMIUM HEADER */
+        .premium-header { 
+            background: var(--bg-white); 
+            border-bottom: 2px solid rgba(255, 153, 51, 0.2); 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            z-index: 50; 
         }
-
-        .glass-header {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .message-bubble { 
-            max-width: 85%; 
-            animation: slideUp 0.3s ease-out;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            position: relative;
-        }
-
-        @keyframes slideUp { 
-            from { opacity: 0; transform: translateY(15px); } 
-            to { opacity: 1; transform: translateY(0); } 
-        }
-
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #f97316; border-radius: 10px; }
         
-        footer {
-            font-size: 10px;
-            color: #9ca3af;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 10px 0;
-            margin-top: auto;
-        }
-        .admin-mode-active { border: 2px solid #2563eb !important; }
+        /* 💬 CHAT BUBBLES */
+        .chat-container { flex-grow: 1; overflow-y: auto; padding: 20px; scroll-behavior: smooth; background: var(--bg-white); }
+        .chat-container::-webkit-scrollbar { width: 5px; }
+        .chat-container::-webkit-scrollbar-thumb { background: rgba(255,153,51,0.4); border-radius: 10px; }
 
-        /* Mic Pulsing Effect */
-        .mic-active { 
-            animation: pulse-red 1.5s infinite; 
-            background: #ef4444 !important; 
+        .msg-bubble { 
+            max-width: 85%; padding: 14px 18px; border-radius: 20px; font-size: 14px; line-height: 1.6; font-weight: 500; 
+            word-wrap: break-word; opacity: 0; animation: popIn 0.3s forwards; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        
+        .msg-user { 
+            background: linear-gradient(135deg, var(--bhagwa), var(--bhagwa-dark)); 
+            color: white; border-bottom-right-radius: 4px; margin-left: auto; 
+            box-shadow: 0 8px 20px rgba(255, 153, 51, 0.3);
+        }
+        
+        .msg-ai { 
+            background: var(--bg-white); color: var(--text-dark); 
+            border-bottom-left-radius: 4px; margin-right: auto; 
+            border: 1px solid rgba(255,153,51,0.2); 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+        }
+
+        @keyframes popIn { 0% { opacity: 0; transform: translateY(10px) scale(0.95); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+
+        /* ⌨️ INPUT AREA */
+        .input-area { 
+            background: var(--bg-white); 
+            border-top: 1px solid rgba(255,153,51,0.2);
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.03);
+            padding: 15px 20px;
+        }
+        .m-input { 
+            background: var(--bg-gray); border: 1px solid rgba(255,153,51,0.3); 
+            border-radius: 25px; padding: 14px 20px; width: 100%; color: var(--text-dark); 
+            outline: none; transition: all 0.3s; font-size: 14px; font-weight: 500;
+        }
+        .m-input:focus { 
+            border-color: var(--bhagwa); background: var(--bg-white); 
+            box-shadow: 0 0 0 4px rgba(255, 153, 51, 0.15); 
+        }
+
+        /* 🔘 BUTTONS */
+        .action-btn { 
+            background: var(--bhagwa); color: white; border: none; border-radius: 50%; 
+            width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; transition: 0.3s; flex-shrink: 0; 
+            box-shadow: 0 4px 15px rgba(255,153,51,0.4);
+        }
+        .action-btn:hover { transform: scale(1.05); background: var(--bhagwa-dark); }
+        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        
+        .mic-btn.recording {
+            animation: pulseRecord 1.5s infinite;
+            background: #ef4444; 
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
             color: white !important;
         }
+        @keyframes pulseRecord { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
-        @keyframes pulse-red {
-            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        /* 🔊 SPEAKER BUTTON */
+        .speak-btn {
+            background: rgba(255,153,51,0.1); color: var(--bhagwa); border: none;
+            border-radius: 50%; width: 32px; height: 32px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: 0.2s;
+            margin-top: 8px;
         }
+        .speak-btn:hover { background: var(--bhagwa); color: white; }
 
-        /* 🧠 Advanced Thinking Indicator */
-        .dot-flashing {
-            position: relative;
-            width: 6px;
-            height: 6px;
-            border-radius: 5px;
-            background-color: #f97316;
-            animation: dot-flashing 1s infinite linear alternate;
-            animation-delay: .5s;
-        }
-        .dot-flashing::before, .dot-flashing::after {
-            content: '';
-            display: inline-block;
-            position: absolute;
-            top: 0;
-            width: 6px;
-            height: 6px;
-            border-radius: 5px;
-            background-color: #f97316;
-            animation: dot-flashing 1s infinite alternate;
-        }
-        .dot-flashing::before {
-            left: -10px;
-            animation-delay: 0s;
-        }
-        .dot-flashing::after {
-            left: 10px;
-            animation-delay: 1s;
-        }
-
-        @keyframes dot-flashing {
-            0% { background-color: #f97316; box-shadow: 0 0 4px #f97316; }
-            50%, 100% { background-color: #ffedd5; box-shadow: none; }
-        }
-
-        .thinking-pulse {
-            animation: softPulse 1.5s infinite;
-        }
-        @keyframes softPulse {
-            0% { opacity: 0.8; }
-            50% { opacity: 1; }
-            100% { opacity: 0.8; }
-        }
-
-        /* 💡 Suggestion Pills CSS */
-        .suggestion-pill {
-            display: inline-block;
-            background: #f3f4f6;
-            color: #2563eb;
-            border: 1px solid #d1d5db;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            margin-top: 6px;
-            margin-right: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .suggestion-pill:hover {
-            background: #e0e7ff;
-            border-color: #93c5fd;
-        }
-
-        /* 🔍 AUTOCOMPLETE DROPDOWN LIST */
-        .autocomplete-dropdown {
-            display: none;
-            position: absolute;
-            bottom: 100%;
-            left: 0;
-            width: 100%;
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
-            border-radius: 20px;
-            max-height: 180px;
-            overflow-y: auto;
-            z-index: 100;
-            margin-bottom: 10px;
-            padding: 5px 0;
-        }
-        .autocomplete-item {
-            padding: 12px 20px;
-            font-size: 13px;
+        .typing-dots { display: flex; gap: 5px; align-items: center; padding: 5px; }
+        .dot { width: 7px; height: 7px; background: var(--bhagwa); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+        
+        /* ⏳ LOADING TEXT ANIMATION */
+        .loading-text {
+            color: var(--bhagwa);
             font-weight: 700;
-            color: #4b5563;
-            border-bottom: 1px solid #f3f4f6;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .autocomplete-item:last-child { border-bottom: none; }
-        .autocomplete-item:hover {
-            background-color: #fff7ed;
-            color: #f97316;
-            padding-left: 25px;
+            font-style: italic;
+            transition: opacity 0.3s ease-in-out;
         }
     </style>
 </head>
 <body>
 
-    <div id="loginModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xl p-4">
-        <div class="bg-white p-10 rounded-[45px] shadow-2xl w-full max-w-sm border-t-8 border-orange-500 text-center">
-            <h2 class="text-4xl font-black text-gray-900 mb-1">PT GOMINI MAU</h2>
-            <p class="text-orange-500 font-extrabold text-sm uppercase tracking-widest mb-8">Customer Support</p>
-            <input type="text" id="uName" placeholder="आपका शुभ नाम" class="w-full bg-gray-50 border-2 border-gray-100 p-4 mb-4 rounded-2xl focus:border-orange-500 outline-none font-bold text-center">
-            <input type="number" id="uPhone" placeholder="मोबाइल नंबर" class="w-full bg-gray-50 border-2 border-gray-100 p-4 mb-8 rounded-2xl focus:border-orange-500 outline-none font-bold text-center">
-            <button onclick="startPortal()" class="w-full bg-orange-500 text-white py-5 rounded-2xl font-black text-xl shadow-xl hover:bg-orange-600 active:scale-95 transition-all">शुरू करें →</button>
+    <header class="premium-header w-full px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <div class="relative">
+                <img src="https://i.ibb.co/G4xsrr6j/qafx-Ln-R-md.png" class="w-12 h-12 rounded-xl border-2 border-[#ff9933] shadow-md object-contain bg-white" crossorigin="anonymous" alt="Logo">
+                <div class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full animate-pulse"></div>
+            </div>
+            <div>
+                <h1 class="text-xl font-black uppercase tracking-wide text-[#1f2937]">Gomini <span class="text-[#ff9933]">AI</span></h1>
+                <p class="text-[10px] text-[#ff9933] font-bold tracking-[2px] uppercase">Business Assistant</p>
+            </div>
         </div>
-    </div>
+        <button onclick="clearMemory()" class="text-[10px] font-bold uppercase text-gray-400 hover:text-[#ff9933] transition border border-gray-200 hover:border-[#ff9933] px-3 py-2 rounded-lg bg-gray-50 hover:bg-orange-50">Clear</button>
+    </header>
 
-    <div class="w-full max-w-2xl px-4 pt-4 h-full flex flex-col">
-        
-        <div class="glass-header rounded-[35px] p-5 mb-5 flex items-center justify-between shadow-lg border border-white">
-            <div class="flex items-center gap-4">
-                <img src="https://i.ibb.co/d0X2B3Wf/PT-20250224-170650-0000.png" alt="PT GOMINI MAU LOGO" border="0" class="w-14 h-14 rounded-2xl shadow-lg object-contain transform -rotate-3">
-                <div>
-                    <h1 class="font-black text-gray-800 text-xl tracking-tight leading-none mb-1">PT GOMINI MAU</h1>
-                    <div class="flex items-center gap-1.5">
-                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                        <span class="text-[10px] text-gray-400 font-bold uppercase">Active Support</span>
+    <main id="chatBox" class="chat-container flex flex-col gap-4 w-full max-w-4xl mx-auto">
+        <div class="msg-bubble msg-ai flex flex-col gap-2">
+            <div class="flex items-start gap-3">
+                <div class="w-9 h-9 rounded-full bg-[#ff9933]/10 flex items-center justify-center shrink-0 border border-[#ff9933]/30">
+                    <img src="https://i.ibb.co/G4xsrr6j/qafx-Ln-R-md.png" class="w-6 h-6 object-contain" crossorigin="anonymous">
+                </div>
+                <div class="pt-1.5 text-gray-800 ai-text">
+                    Namaste! Main Gomini hoon, Sanjay Patel ji ki smart business assistant. Aap simple furniture, receipt ya customer vault se judi jankari ke liye mujhse pooch sakte hain.
+                </div>
+            </div>
+            <div class="flex justify-end border-t border-gray-100 pt-1 mt-1">
+                <button onclick="speakAI(this)" class="speak-btn" title="Sunne ke liye click karein">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd"></path></svg>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="input-area w-full">
+        <div class="max-w-4xl mx-auto flex gap-3 items-center relative">
+            <input type="text" id="userInput" placeholder="Yahan message likhein ya bolein..." class="m-input" autocomplete="off" onkeypress="handleEnter(event)">
+            
+            <button id="micBtn" onclick="toggleMic()" class="action-btn mic-btn bg-gray-100 !text-[#ff9933] border border-[#ff9933]/30 shadow-none hover:bg-orange-50">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clip-rule="evenodd"></path></svg>
+            </button>
+
+            <button id="sendBtn" onclick="sendMessage()" class="action-btn">
+                <svg class="w-5 h-5 ml-1" fill="white" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path></svg>
+            </button>
+        </div>
+    </footer>
+
+    <script>
+        // 🚀 Aapka naya Deployment URL
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw4hWnhbCey4W0yq2IT5iB6ZJg5pn2RerkS4QEx24rwSLfr_OEGjX_1R_rGHK_tFHmt/exec";
+
+        // --- SPEECH RECOGNITION ---
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition;
+        let isRecording = false;
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.lang = 'hi-IN';
+            recognition.continuous = false;
+            
+            recognition.onstart = function() {
+                isRecording = true;
+                document.getElementById('micBtn').classList.add('recording');
+                document.getElementById('userInput').placeholder = "Sun rahi hoon... boliye";
+            };
+            
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('userInput').value = transcript;
+                sendMessage(); 
+            };
+            
+            recognition.onend = function() {
+                isRecording = false;
+                document.getElementById('micBtn').classList.remove('recording');
+                document.getElementById('userInput').placeholder = "Yahan message likhein ya bolein...";
+            };
+        }
+
+        function toggleMic() {
+            if (!recognition) return alert("Aapka browser mic support nahi karta. Chrome use karein.");
+            if (isRecording) { recognition.stop(); } 
+            else { recognition.start(); }
+        }
+
+        // --- TEXT TO SPEECH ---
+        function speakAI(btnElement) {
+            if (!('speechSynthesis' in window)) {
+                alert("Aapka browser text-to-speech support nahi karta.");
+                return;
+            }
+            const msgBox = btnElement.closest('.msg-ai').querySelector('.ai-text');
+            const textToSpeak = msgBox.innerText || msgBox.textContent;
+
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+            utterance.lang = 'hi-IN';
+            utterance.rate = 1.0;
+
+            const originalHTML = btnElement.innerHTML;
+            btnElement.innerHTML = `<svg class="w-4 h-4 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>`;
+            
+            utterance.onend = function() { btnElement.innerHTML = originalHTML; };
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // --- MAIN CHAT LOGIC ---
+        async function sendMessage() {
+            const inputEl = document.getElementById('userInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const text = inputEl.value.trim();
+            
+            if(!text) return;
+
+            inputEl.value = "";
+            inputEl.disabled = true;
+            sendBtn.disabled = true;
+
+            addMessageToUI(text, 'user', true);
+            const typingObj = showTypingIndicator(); // Ab yeh id aur interval dono return karega
+
+            try {
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ prompt: text })
+                });
+                
+                const result = await response.json();
+                let aiReply = result.reply || "";
+
+                // 🔴 Error Checking (Agar Gemini rok de ya fail ho jaye)
+                if (aiReply.toLowerCase().includes("error") || aiReply === "") {
+                    aiReply = "query unsuccessful you are asking beyond our business";
+                }
+                
+                let formattedReply = aiReply.replace(/\*\*(.*?)\*\*/g, '<strong class="text-[#ff9933]">$1</strong>');
+                formattedReply = formattedReply.replace(/\n/g, '<br>');
+
+                clearInterval(typingObj.interval);
+                document.getElementById(typingObj.id).remove();
+                addMessageToUI(formattedReply, 'ai', true);
+
+            } catch (error) {
+                // 🔴 Network ya fetch error pe Custom Message
+                clearInterval(typingObj.interval);
+                document.getElementById(typingObj.id).remove();
+                addMessageToUI("query unsuccessful you are asking beyond our business", 'ai', true);
+            }
+
+            inputEl.disabled = false;
+            sendBtn.disabled = false;
+            inputEl.focus();
+        }
+
+        function handleEnter(e) { if(e.key === 'Enter') sendMessage(); }
+
+        // --- DYNAMIC TYPING INDICATOR (Thinking -> Analysing -> Answering) ---
+        function showTypingIndicator() {
+            const chatBox = document.getElementById('chatBox');
+            const id = 'typing-' + Date.now();
+            const div = document.createElement('div');
+            div.id = id;
+            div.className = `msg-bubble msg-ai flex flex-col gap-2`;
+            div.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-[#ff9933]/10 flex items-center justify-center shrink-0 border border-[#ff9933]/30">
+                        <img src="https://i.ibb.co/G4xsrr6j/qafx-Ln-R-md.png" class="w-6 h-6 object-contain" crossorigin="anonymous">
+                    </div>
+                    <div class="pt-1 text-gray-800 flex items-center gap-2">
+                        <span id="loading-text-${id}" class="loading-text">Thinking...</span>
+                        <div class="typing-dots pt-1">
+                            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="flex flex-col items-end gap-2 relative">
-                <div class="flex items-center gap-2">
-                    <p id="displayUserName" class="text-[10px] font-black text-orange-500 uppercase bg-orange-50 px-3 py-1 rounded-full">Guest</p>
-                    
-                    <button onclick="logout()" title="लॉगआउट" class="w-8 h-8 bg-gray-100 hover:bg-red-50 hover:text-red-500 rounded-full flex items-center justify-center transition-all">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1-2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                    </button>
-                </div>
-                <div id="adminBadge" class="hidden text-[9px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-bold absolute top-10 right-0">ADMIN MODE</div>
-            </div>
-        </div>
-
-        <div id="chatBody" class="chat-container custom-scrollbar overflow-y-auto flex flex-col gap-5 px-2 pb-2"></div>
-
-        <div id="thinkingIndicator" class="hidden mt-1 mb-2 ml-4">
-            <div class="bg-white/90 backdrop-blur-sm px-6 py-3 rounded-full shadow-sm border border-orange-100 inline-flex items-center gap-4 thinking-pulse">
-                <span class="text-orange-500 font-black text-xs" id="thinkingText">Gomini AI सोच रहा है</span>
-                <div class="dot-flashing"></div>
-            </div>
-        </div>
-
-        <div class="relative w-full mt-auto">
-            
-            <div id="autocompleteList" class="autocomplete-dropdown custom-scrollbar"></div>
-
-            <div id="inputBoxContainer" class="bg-white rounded-[40px] p-3 shadow-2xl flex items-center gap-3 border-4 border-white transition-all">
-                
-                <button id="voiceBtn" onclick="startVoiceInput()" class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:bg-orange-100 hover:text-orange-500 transition-all">
-                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
-                </button>
-
-                <input type="text" id="userInput" placeholder="अपना सवाल यहाँ टाइप करें या बोलें..." class="flex-1 bg-transparent py-3 px-2 outline-none font-bold text-gray-700 text-sm placeholder:text-gray-400" oninput="handleTypingDropdown()" onkeypress="if(event.key === 'Enter') sendMessage()">
-
-                <button id="sendBtn" onclick="sendMessage()" class="hidden w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-orange-600 active:scale-90 transition-all">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-                </button>
-            </div>
-        </div>
-
-        <footer class="text-center mt-3">
-            Official AI Developed by Patel Traders Copyright 2026
-        </footer>
-    </div>
-
-<script>
-    const CONFIG = { 
-        url: "https://script.google.com/macros/s/AKfycbzSNR2Bk2cQgjscx8ShIguHW--mQ8u9Dn-JD9UKipvMg5vy4I1r7zVds-GDSiBgX7Va/exec", 
-        token: "PT_SECURE_2026",
-        master_key: "PT955"
-    };
-    
-    let userInfo = { name: "", phone: "" };
-    let isVoiceEnabled = true; 
-
-    // Hide autocomplete dropdown if clicked outside
-    window.onclick = function(event) {
-        if (!event.target.matches('#userInput') && !event.target.closest('#autocompleteList')) {
-            let dd = document.getElementById("autocompleteList");
-            if(dd) dd.style.display = "none";
-        }
-    }
-
-    // 🧠 MEGA DICTIONARY (10,000+ WORDS LOGIC)
-    const LOCAL_KNOWLEDGE = [
-        { keywords: ["your name", "tumhara naam", "aapka naam", "apna naam", "who are you", "tum kaun", "bot", "robot", "ai", "gomini", "mau", "tumhara nam", "tera nam", "tu kon", "who is this", "apni pehchan", "identify", "artificial intelligence", "chat bot", "assistant", "gomni", "gamini", "gomani", "goumini"], response: "मेरा नाम गॉमनी (Gomini) है! मैं पटेल ट्रेडर्स का ऑफिशियल AI कस्टमर सपोर्ट असिस्टेंट हूँ।" },
-        { keywords: ["owner", "malik", "sheelu", "sanjay", "patel", "bhaiya", "seth", "boss", "kiski dukan", "ceo", "founder", "proprietor", "shilu", "silu", "shelu", "sanjy", "sunjay", "owner name", "maalik", "maliq", "kiski shop", "kiska showroom", "dukan ka seth", "kisne banaya"], response: "पटेल ट्रेडर्स के संस्थापक और मालिक श्री संजय पटेल और शीलू जी हैं।" },
-        
-        { keywords: ["customer vault", "user vault", "customer gateway", "mera bill", "invoice", "link to customer vault", "customer portal", "vault", "volt", "voult", "mera order", "bill dikhao", "receipt", "reciept", "khata", "hisab kitab", "dashbord", "dashboard"], response: "आप अपने बिल और ऑर्डर्स देखने के लिए हमारे कस्टमर वॉल्ट (Customer Vault) पर जा सकते हैं। यह रहा लिंक: https://sheelu955.github.io/Customer-Gateway/ " },
-        { keywords: ["admin vault", "admin portal", "admin gateway", "admin link", "management portal", "boss portal", "admin login", "owner login", "cpanel", "control panel"], response: "एडमिन पोर्टल केवल पटेल ट्रेडर्स के एडमिनिस्ट्रेशन (मालिक) के लिए है। यह रहा लिंक: https://sheelu955.github.io/Admin-Gateway/ " },
-        { keywords: ["cms", "cms portal", "complaint portal", "complaint management system", "shikayat link", "report link", "complain link", "dikkat portal", "complaint form", "helpdesk link"], response: "अपनी शिकायत दर्ज करने या उसका स्टेटस चेक करने के लिए कृपया हमारे CMS पोर्टल का उपयोग करें। यह रहा लिंक: https://sheelu955.github.io/CMS-COMPLAINT-MANAGEMENT-SYSTEM/ " },
-        { keywords: ["main website", "unified gateway", "master portal", "main link", "home page", "website link", "web address", "site link", "online store", "portal link"], response: "पटेल ट्रेडर्स का मुख्य यूनिफाइड गेटवे (Unified Gateway) यहाँ उपलब्ध है। लिंक: https://sheelu955.github.io/AI/ " },
-
-        { keywords: ["number", "phone", "contact", "call", "whatsapp", "mobile", "sampark", "bat karni", "phone no", "phn", "mob", "whtsapp", "kisko call", "baat kaise karu", "helpline", "customer care", "customer support number", "owner number", "malik ka number"], response: "पटेल ट्रेडर्स से संपर्क करने या बात करने के लिए, कृपया तालग्राम, गांधीनगर स्थित हमारी मुख्य दुकान पर पधारें। आप अपना सवाल मुझे भी बता सकते हैं।" },
-        { keywords: ["hello", "hi", "hey", "namaste", "नमस्ते", "हेलो", "how are you", "kaise ho", "pranam", "helo", "heyy", "hii", "namaskar", "sasriyakal", "kem cho", "kaise hain", "sab thik", "ram ram", "radhe radhe", "suprabhat", "good morning", "good evening", "good night"], response: "नमस्ते! मैं गॉमनी हूँ। पटेल ट्रेडर्स में आपका स्वागत है। बताइए मैं आपकी क्या मदद कर सकता हूँ?" },
-        { keywords: ["thank you", "thanks", "dhanyawad", "shukriya", "धन्यवाद", "शुक्रिया", "great", "achha hai", "good", "thank u", "thx", "thnx", "tq", "nice", "awesome", "mast", "badhiya", "ek number", "badiya", "superb", "shandar"], response: "आपका बहुत-बहुत धन्यवाद! (You're welcome!) पटेल ट्रेडर्स को सेवा का मौका देने के लिए शुक्रिया। क्या मैं आपकी कोई और मदद कर सकता हूँ?" },
-        { keywords: ["welcome", "swagat", "स्वागत", "ur welcome", "most welcome", "my pleasure", "koi baat nahi"], response: "धन्यवाद! पटेल ट्रेडर्स में आपका हमेशा स्वागत है।" },
-        { keywords: ["sorry", "maaf", "apology", "माफ़", "सॉरी", "galti", "mistake", "my bad", "im sorry", "maafi", "kshama", "bura mat manna"], response: "कोई बात नहीं! मैं आपकी कैसे मदद कर सकता हूँ?" },
-        { keywords: ["help", "madad", "sahayata", "मदद", "सहायता", "query", "question", "sawal", "help me", "support", "guide me", "puchna", "batao", "bataiye", "help chahiye"], response: "जी बिल्कुल! कृपया बताएं आपको पटेल ट्रेडर्स के बारे में क्या जानकारी चाहिए? मैं फर्नीचर, रेट, पॉलिसी सब बता सकता हूँ।" },
-        
-        { keywords: ["location", "address", "पता", "address batao", "where is", "shop kahan", "dukan kahan", "kahan hai", "kidhar", "map", "rasta", "kaha par", "kis jagah", "disa", "city", "talgram", "gandhinagar", "gandhi nagar", "shop location", "kaha aana hai", "google map", "pata batao"], response: "हमारी दुकान तालग्राम, गांधीनगर में स्थित है। आप किसी भी दिन आ सकते हैं।" },
-        { keywords: ["timing", "timings", "time", "samay", "kab khulta", "kitne baje", "khulne ka", "open", "close", "band", "chhutti", "sunday", "working hours", "kitni der", "kab aana hai", "dukhaan kab", "shop time", "opening hours", "closing time"], response: "पटेल ट्रेडर्स सामान्यतः सुबह 9:00 बजे से शाम 8:00 बजे तक खुला रहता है। हम सातों दिन कामদ্দি करते हैं।" },
-        
-        { keywords: ["price", "cost", "rate", "daam", "kitne ka", "sasta", "discount", "offer", "mehanga", "bhav", "paisa", "rupaye", "budget", "sale", "price list", "catalog", "kimat", "keemat", "paisa kitna", "kam hoga", "kitne me padega", "bhav batao", "rate list", "quotation"], response: "पटेल ट्रेडर्स पर आपको मार्केट से सबसे बेहतरीन और उचित रेट मिलेगा। हर सामान के हिसाब से रेट अलग होता है, सही कीमत के लिए कृपया दुकान पर आएं।" },
-        { keywords: ["payment", "cash", "online", "upi", "paytm", "google pay", "gpay", "phonepe", "card", "paisa kaise", "पेमेंट", "ऑनलाइन", "scanner", "qr code", "bank transfer", "pay", "credit card", "debit card", "swipe", "account number", "account me", "neft", "rtgs", "naqad", "nakad"], response: "आप पेमेंट नकद (Cash) या किसी भी UPI ऐप (Google Pay, PhonePe, Paytm, QR Scan) के माध्यम से सुरक्षित तरीके से कर सकते हैं।" },
-        { keywords: ["udhar", "credit", "emi", "kisht", "loan", "उधार", "किस्त", "लोन", "baki", "baad me", "finance", "bajaj finance", "installments", "adhe paise", "kist", "baad me dunga", "kal dunga", "udhari", "khata", "jama karo", "finance pe"], response: "माफ़ कीजिये, पटेल ट्रेडर्स पर उधार (Credit), फाइनेंस या EMI की सुविधा उपलब्ध नहीं है। कृपया नकद या ऑनलाइन फुल पेमेंट करें।" },
-        { keywords: ["delivery", "डिलीवरी", "home delivery", "bhejna", "dispatch", "transport", "bhejwa", "pahuncha", "shipping", "ghar tak", "truck", "tempo", "ghar pe", "doorstep", "bhej doge", "parcel", "transportation", "cargo", "delivery charge"], response: "माफ़ कीजिये, पटेल ट्रेडर्स में वर्तमान में होम डिलीवरी या ट्रांसपोर्ट की सुविधा उपलब्ध नहीं है। आपको दुकान से ही अपना सामान ले जाना होगा।" },
-        { keywords: ["term", "terms", "condition", "conditions", "policy", "नियम", "शर्तें", "शर्ते", "rules", "shart", "qanoon", "kanun", "company policy", "t&c"], response: "पटेल ट्रेडर्स की पॉलिसी: 1. रिफंड केवल 7-10 कार्य दिवसों में होगा। 2. उत्पादों पर कोई वारंटी नहीं है। 3. वर्तमान में होम डिलीवरी उपलब्ध नहीं है।" },
-        { keywords: ["warranty", "guarantee", "वारंटी", "गारंटी", "warenti", "kharab", "repair", "replacement", "toot gaya", "return", "exchange", "wapas", "badal", "replace", "garenti", "saal ki warranty", "khrab hone par", "tootne par"], response: "माफ़ कीजिये, पटेल ट्रेडर्स के उत्पादों पर कोई वारंटी, गारंटी या रिप्लेसमेंट नहीं दी जाती है। आप सामान खरीदने से पहले उसे अच्छे से चेक कर सकते हैं।" },
-        
-        { keywords: ["furniture", "lakdi", "wood", "wooden", "kya kya", "items", "products", "saman", "kya bechte", "फर्नीचर", "लकड़ी", "lakadi", "saaman", "product list", "kya banate", "woodwork", "kya milta hai", "items list"], response: "हम पटेल ट्रेडर्स में मुख्य रूप से सिंपल और अनपॉलिश्ड (बिना पॉलिश) लकड़ी का सामान बनाते और बेचते हैं। हमारे पास गुल्लक (Money Box), लकड़ी की टेबल, कुर्सियां और अन्य साधारण व मजबूत लकड़ी के आइटम मिलते हैं।" },
-        { keywords: ["gullak", "money box", "coin box", "paise rakhne ka", "galla", "piggy bank", "lakdi ka gullak", "gulak", "gullack", "gullaq", "gala", "piggybank", "cash box", "peti", "kalla", "tijori", "choti tijori", "bhandar", "golak", "gollek", "box", "chota box", "paise bachane", "galla box"], response: "जी हाँ, हमारे पास बेहतरीन और मजबूत लकड़ी के गुल्लक (Money Box / Galla) उपलब्ध हैं। आप अपनी जरूरत और साइज़ के हिसाब से इन्हें खरीद सकते हैं।" },
-        { keywords: ["table", "chair", "mez", "kursi", "study table", "office table", "डाइनिंग", "कुर्सी", "मेज", "center table", "stool", "kursee", "chere", "chear", "tebal", "tebel", "taybal", "mej", "stul", "baithne ka", "desk", "bench", "pata", "patra", "chauki", "lakdi ki kursi", "lakdi ki mez", "lakdi ki table", "simple table", "simple chair", "sitting"], response: "हम साधारण और मजबूत लकड़ी की टेबल (Mez) और कुर्सियां (Chair / Stool / Bench) बनाते हैं। ये अनपॉलिश्ड और टिकाऊ होती हैं जो लंबे समय तक चलती हैं।" },
-        
-        { keywords: ["polish", "paint", "finish", "simple", "unpolished", "sofa", "bed", "palang", "heavy furniture", "couch", "almari", "wardrobe", "cupboard", "almirah", "dressing", "showcase", "diwan", "double bed", "l shape", "fancy", "designer", "sheesha", "glass"], response: "माफ़ कीजिये, हम फैंसी, पॉलिश्ड (Polished) फर्नीचर जैसे सोफा या बेड नहीं रखते। हम केवल सिंपल और अनपॉलिश्ड (Unpolished) लकड़ी का सामान (जैसे गुल्लक, टेबल, पटरा, कुर्सी) ही बेचते हैं।" },
-
-        { keywords: ["complaint", "shikayat", "dikkat", "problem", "issue", "gussa", "bekar service", "naraz", "complain", "action", "report", "case", "police", "legal", "thug", "lut liya", "kharab quality"], response: "असुविधा के लिए हमें बेहद खेद है। कृपया अपनी शिकायत हमारे CMS (Complaint Management System) पोर्टल पर दर्ज करें: https://sheelu955.github.io/CMS-COMPLAINT-MANAGEMENT-SYSTEM/" },
-        { keywords: ["bad", "worst", "fake", "fraud", "scam", "bekar", "ghatiya", "gali", "abuse", "pagal", "stupid", "idiot", "kharab", "फर्जी", "फ़र्ज़ी", "खराब", "बकवास", "बेकार", "lutere", "chor", "kutta", "kamine", "harami", "ullu", "nonsense", "shut up", "bakwas", "gadha", "chutiya", "madarchod", "bhenchod", "saale", "haramkhor", "mc", "bc", "bsdk", "bhosdike", "chu", "dumb", "useless", "trash", "shit", "bullshit", "fucking", "fck", "bitch", "asshole", "kaminey", "nalayak", "bewakoof", "kamina"], response: "यह व्यवहार कंपनी की पॉलिसी के खिलाफ है। मैं एक AI असिस्टेंट हूँ। कृपया बात करने के लिए सम्मानजनक और सभ्य भाषा का प्रयोग करें, अन्यथा सेशन बंद कर दिया जाएगा।" }
-    ];
-
-    // 🎙️ Speech Recognition Setup (AUTO-SEND PRESERVED)
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let recognition;
-    let isRecording = false;
-    
-    if (SpeechRecognition) {
-        recognition = new SpeechRecognition();
-        recognition.lang = 'hi-IN'; 
-        recognition.interimResults = true; 
-        recognition.continuous = false; 
-
-        recognition.onstart = () => {
-            isRecording = true;
-            document.getElementById('voiceBtn').classList.add('mic-active');
-            document.getElementById('userInput').placeholder = "गॉमनी सुन रहा है... बोलिए";
-        };
-
-        recognition.onresult = (event) => {
-            let finalTranscript = '';
-            for (let i = event.resultIndex; i < event.results.length; ++i) {
-                if (event.results[i].isFinal) {
-                    finalTranscript += event.results[i][0].transcript;
-                }
-            }
-            if (finalTranscript !== '') {
-                document.getElementById('userInput').value = finalTranscript;
-                toggleSendBtn();
-                
-                // 🔄 VOICE AUTO-SEND
-                setTimeout(() => {
-                    if(document.getElementById('userInput').value.trim() !== "") {
-                        document.getElementById("autocompleteList").style.display = "none";
-                        sendMessage();
-                    }
-                }, 800); 
-            }
-        };
-
-        recognition.onerror = () => resetMic();
-        recognition.onend = () => resetMic();
-    }
-
-    function startVoiceInput() {
-        if (!recognition) {
-            alert("आपका ब्राउज़र वॉइस सपोर्ट नहीं करता। कृपया क्रोम का इस्तेमाल करें।");
-            return;
-        }
-        if (isRecording) {
-            recognition.stop();
-        } else {
-            try {
-                window.speechSynthesis.cancel();
-                recognition.start();
-            } catch (e) {
-                resetMic();
-            }
-        }
-    }
-
-    function resetMic() {
-        isRecording = false;
-        document.getElementById('voiceBtn').classList.remove('mic-active');
-        document.getElementById('userInput').placeholder = "अपना सवाल यहाँ टाइप करें या बोलें...";
-    }
-
-    function speakText(text) {
-        if (!isVoiceEnabled || !('speechSynthesis' in window)) return;
-        
-        window.speechSynthesis.cancel();
-        let cleanText = text.replace(/(https?:\/\/[^\s]+)/g, "लिंक");
-        cleanText = cleanText.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '')
-                              .replace(/[*_#|]/g, '');
-
-        const utterance = new SpeechSynthesisUtterance(cleanText);
-        utterance.lang = 'hi-IN'; 
-        utterance.rate = 1.0; 
-        window.speechSynthesis.speak(utterance);
-    }
-
-    function toggleVoiceState() {
-        isVoiceEnabled = !isVoiceEnabled;
-        if (!isVoiceEnabled) window.speechSynthesis.cancel(); 
-
-        const buttons = document.querySelectorAll('.voice-toggle-btn');
-        buttons.forEach(btn => {
-            if (isVoiceEnabled) {
-                btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>`;
-                btn.classList.remove('text-red-500');
-                btn.classList.add('text-green-500');
-            } else {
-                btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="1" x2="1" y2="23"></line></svg>`;
-                btn.classList.remove('text-green-500');
-                btn.classList.add('text-red-500');
-            }
-        });
-    }
-
-    function stopAudio() {
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel();
-        }
-    }
-
-    // 📡 HTTP LOGGING TO GOOGLE SHEET & HISTORY LOAD RESTORED
-    window.onload = function() {
-        const savedName = localStorage.getItem('gomini_uName');
-        const savedPhone = localStorage.getItem('gomini_uPhone');
-        
-        if (savedName && savedPhone) {
-            userInfo = { name: savedName, phone: savedPhone };
-            document.getElementById('loginModal').classList.add('hidden');
-            document.getElementById('displayUserName').innerText = savedName;
-            
-            // Activate Secret Admin UI if history has it enabled
-            if(sessionStorage.getItem('gomini_admin') === 'true') activateAdminUI();
-            
-            // 🔄 LOAD HISTORY
-            const chatHistory = JSON.parse(localStorage.getItem('gomini_chat_history')) || [];
-            if(chatHistory.length > 0) {
-                chatHistory.forEach(msg => addMsg(msg.text, msg.sender, false));
-                let wMsg = `नमस्ते ${savedName} जी! PT GOMINI MAU में आपकी वापसी देखकर खुशी हुई।`;
-                addMsg(wMsg, 'ai', false); 
-                speakText(`नमस्ते ${savedName} जी! पटेल ट्रेडर्स में आपका स्वागत है।`);
-            } else {
-                let wMsg = `नमस्ते ${savedName} जी! PT GOMINI MAU में आपकी वापसी देखकर खुशी हुई।`;
-                addMsg(wMsg, 'ai');
-                speakText(`नमस्ते ${savedName} जी! पटेल ट्रेडर्स में आपका स्वागत है।`);
-            }
-
-            // 📡 SILENT LOGIN LOG TO SHEET
-            try {
-                let currentTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
-                let loginUrl = `${CONFIG.url}?token=${CONFIG.token}&action=login&name=${encodeURIComponent(savedName)}&phone=${encodeURIComponent(savedPhone)}&time=${encodeURIComponent(currentTime)}`;
-                fetch(loginUrl, {mode: 'no-cors'});
-            } catch(e) {}
-        }
-    };
-
-    function logout() {
-        if(confirm("क्या आप इस सेशन से बाहर जाना चाहते हैं?")) {
-            localStorage.removeItem('gomini_uName');
-            localStorage.removeItem('gomini_uPhone');
-            sessionStorage.removeItem('gomini_admin');
-            location.reload(); 
-        }
-    }
-
-    function activateAdminUI() {
-        sessionStorage.setItem('gomini_admin', 'true');
-        document.getElementById('adminBadge').classList.remove('hidden');
-        document.getElementById('inputBoxContainer').classList.add('admin-mode-active');
-        document.getElementById('userInput').placeholder = "सिखाएँ: सवाल | जवाब";
-    }
-
-    function toggleSendBtn() {
-        const val = document.getElementById('userInput').value.trim();
-        const btn = document.getElementById('sendBtn');
-        btn.style.display = val.length > 0 ? 'flex' : 'none';
-    }
-
-    // 🔍 DROPDOWN AUTOCOMPLETE LOGIC 
-    function handleTypingDropdown() {
-        toggleSendBtn();
-        const val = document.getElementById('userInput').value.trim().toLowerCase();
-        const dropdown = document.getElementById('autocompleteList');
-        dropdown.innerHTML = '';
-        
-        if(val.length < 2) {
-            dropdown.style.display = 'none';
-            return;
-        }
-        
-        let matches = [];
-        for(let item of LOCAL_KNOWLEDGE) {
-            for(let kw of item.keywords) {
-                if(kw.length > 3 && kw.includes(val)) {
-                    if(!matches.includes(kw)) matches.push(kw);
-                }
-            }
-        }
-        
-        if(matches.length > 0) {
-            matches.slice(0, 6).forEach(match => {
-                const div = document.createElement('div');
-                div.className = 'autocomplete-item';
-                div.innerText = match;
-                div.onclick = () => {
-                    document.getElementById('userInput').value = match;
-                    dropdown.style.display = 'none';
-                    sendMessage();
-                };
-                dropdown.appendChild(div);
-            });
-            dropdown.style.display = 'block';
-        } else {
-            dropdown.style.display = 'none';
-        }
-    }
-
-    async function startPortal() {
-        const name = document.getElementById('uName').value.trim();
-        const phone = document.getElementById('uPhone').value.trim();
-        if(name.length < 2 || phone.length < 10) return alert("नाम और नंबर सही डालें!");
-        
-        userInfo = { name, phone };
-        localStorage.setItem('gomini_uName', name);
-        localStorage.setItem('gomini_uPhone', phone);
-        
-        document.getElementById('loginModal').classList.add('hidden');
-        document.getElementById('displayUserName').innerText = name;
-        
-        let msg = `नमस्ते ${name} जी! पटेल ट्रेडर्स के सपोर्ट पोर्टल पर आपका स्वागत है।`;
-        addMsg(msg, 'ai');
-        speakText(msg);
-
-        // 📡 LOGIN LOG TO SHEET
-        try {
-            let currentTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
-            let loginUrl = `${CONFIG.url}?token=${CONFIG.token}&action=login&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&time=${encodeURIComponent(currentTime)}`;
-            fetch(loginUrl, {mode: 'no-cors'});
-        } catch(e) {}
-    }
-
-    // Exact Phrase Match
-    function checkLocalKnowledge(text) {
-        const cleanText = " " + text.toLowerCase().replace(/[.,!?]/g, '') + " "; 
-        for (let item of LOCAL_KNOWLEDGE) {
-            for (let keyword of item.keywords) {
-                if (cleanText.includes(" " + keyword + " ")) {
-                    return item.response;
-                }
-            }
-        }
-        return null; 
-    }
-
-    // 💡 Did you mean Suggestion Pills
-    function findSimilarQuestions(text) {
-        const words = text.toLowerCase().replace(/[.,!?]/g, '').split(' ').filter(w => w.length > 3);
-        let suggestions = [];
-        for (let item of LOCAL_KNOWLEDGE) {
-            for (let keyword of item.keywords) {
-                for(let word of words) {
-                    if (keyword.includes(word) || word.includes(keyword)) {
-                        if(!suggestions.includes(keyword)) suggestions.push(keyword);
-                    }
-                }
-            }
-        }
-        return suggestions.slice(0, 3);
-    }
-
-    window.sendSuggestion = function(text) {
-        document.getElementById('userInput').value = text;
-        document.getElementById("autocompleteList").style.display = "none";
-        sendMessage();
-    };
-
-    function optimizeQueryForDatabase(rawText) {
-        let cleanText = rawText.toLowerCase().replace(/[?.,!]/g, '');
-        const fillers = ["please tell me about", "can you tell me", "mujhe batao ki", "i want to know", "give me the link to", "do you have", "what kind of", "what type of", "kaun kaun se", "give me", "show me", "bhaiya", "please", "kya", "mujhe", "batao", "link to", "what is", "where is", "how to", "i need", "chahiye", "dikhao", "ke bare mein", "detail", "details"];
-        for(let filler of fillers) {
-            cleanText = cleanText.replace(new RegExp(filler, 'gi'), '');
-        }
-        cleanText = cleanText.trim();
-        return cleanText.length > 0 ? cleanText : rawText;
-    }
-
-    async function sendMessage() {
-        const input = document.getElementById('userInput');
-        const originalText = input.value.trim();
-        if(!originalText) return;
-
-        window.speechSynthesis.cancel(); 
-        document.getElementById("autocompleteList").style.display = "none"; 
-
-        addMsg(originalText, 'user');
-        input.value = "";
-        toggleSendBtn();
-        showThinking(true, "Gomini AI सोच रहा है...");
-
-        let isAdmin = sessionStorage.getItem('gomini_admin') === 'true';
-
-        // SECRET ADMIN TRIGGER (No UI Buttons!)
-        if(originalText.toLowerCase().includes("admin955") || originalText.toLowerCase().includes("redmi 955")) {
-            activateAdminUI();
-            showThinking(false);
-            let ans = "संजय भाई, एडमिन मोड सक्रिय है। अब आप 'सवाल | जवाब' लिखकर मुझे सिखा सकते हैं।";
-            addMsg("✅ " + ans, 'ai');
-            speakText(ans);
-            return;
-        }
-
-        if(isAdmin && originalText.includes("|")) {
-            let parts = originalText.split("|");
-            try {
-                let learnUrl = `${CONFIG.url}?token=${CONFIG.token}&action=learn&q=${encodeURIComponent(parts[0].trim())}&a=${encodeURIComponent(parts[1].trim())}&key=${CONFIG.master_key}`;
-                await fetch(learnUrl, {mode: 'no-cors'});
-                showThinking(false);
-                let ans = "संजय भाई, यह जानकारी मेरी मेमोरी में सेव हो गई है।";
-                addMsg("✅ " + ans, 'ai');
-                speakText(ans);
-            } catch(e) {
-                showThinking(false);
-                addMsg("Error: सेव नहीं हो पाया।", 'ai');
-            }
-            return;
-        }
-
-        // 1️⃣ Mega Database Check
-        let localResponse = checkLocalKnowledge(originalText);
-        if (localResponse) {
-            setTimeout(() => {
-                showThinking(false);
-                addMsg(localResponse, 'ai');
-                speakText(localResponse);
-            }, 800); 
-            return;
-        }
-
-        // 2️⃣ External Google Sheet Check
-        showThinking(true, "Connecting to Database...");
-        let smartQuery = optimizeQueryForDatabase(originalText);
-
-        try {
-            let res = await fetch(`${CONFIG.url}?token=${CONFIG.token}&action=askJarvis&q=${encodeURIComponent(smartQuery)}&phone=${userInfo.phone}`);
-            let data = await res.json();
-            
-            showThinking(false);
-            
-            // 3️⃣ IF NOT FOUND IN LOCAL OR DB
-            if(!data.answer || data.answer.trim() === "" || data.answer.includes("नहीं पता") || data.answer.includes("not in my database")) {
-                
-                let suggestions = findSimilarQuestions(originalText);
-                
-                if(suggestions.length > 0) {
-                    let suggestionHTML = `मुझे इसका सटीक जवाब नहीं मिला। क्या आपका मतलब इनमें से किसी से था?<br><div class="mt-2">`;
-                    suggestions.forEach(s => {
-                        suggestionHTML += `<span class="suggestion-pill" onclick="sendSuggestion('${s}')">${s}</span>`;
-                    });
-                    suggestionHTML += `</div>`;
-                    addMsg(suggestionHTML, 'ai');
-                    speakText("मुझे इसका सटीक जवाब नहीं मिला। स्क्रीन पर दिए गए विकल्पों में से चुनें।");
-                } else {
-                    // EXACT PHRASE RESTORED
-                    let notFoundMsg = "That's it not in my memory.";
-                    addMsg(notFoundMsg, 'ai');
-                    speakText("दैट इज नॉट इन माय मेमोरी।");
-                }
-
-            } else {
-                addMsg(data.answer, 'ai');
-                speakText(data.answer); 
-            }
-
-        } catch(e) {
-            showThinking(false);
-            let err = "माफ़ कीजिये, सर्वर अभी कनेक्ट नहीं हो पा रहा है।";
-            addMsg(err, 'ai');
-            speakText(err);
-        }
-    }
-
-    function addMsg(text, sender, save = true) {
-        const body = document.getElementById('chatBody');
-        const div = document.createElement('div');
-        
-        if(sender === 'ai') {
-            div.className = "message-bubble bg-white p-4 rounded-[28px] rounded-tl-none border border-gray-100 text-gray-800 text-sm font-bold shadow-sm";
-            
-            const iconSvg = isVoiceEnabled ? 
-                `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>` : 
-                `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="1" x2="1" y2="23"></line></svg>`;
-            const colorClass = isVoiceEnabled ? "text-green-500" : "text-red-500";
-
-            let formattedText = text.replace(/(https?:\/\/[^\s]+)/g, function(url) {
-                return `<a href="${url}" target="_blank" class="text-blue-600 underline hover:text-blue-800 break-all">${url}</a>`;
-            });
-
-            div.innerHTML = `
-                <div class="flex justify-between items-start mb-1">
-                    <span class="text-[10px] text-orange-500 block">PT GOMINI</span>
-                    <button onclick="toggleVoiceState()" title="आवाज़ चालू/बंद करें" class="voice-toggle-btn ${colorClass} bg-gray-50 rounded-full w-6 h-6 flex items-center justify-center transition-all">${iconSvg}</button>
-                </div>
-                ${formattedText}
             `;
-        } else {
-            div.className = "message-bubble bg-orange-500 p-5 rounded-[28px] rounded-tr-none text-white text-sm font-bold ml-auto shadow-lg";
-            div.innerText = text; 
-        }
-        
-        body.appendChild(div);
-        body.scrollTop = body.scrollHeight;
+            chatBox.appendChild(div);
+            scrollToBottom();
 
-        if(save) {
-            const chatHistory = JSON.parse(localStorage.getItem('gomini_chat_history')) || [];
-            chatHistory.push({ text: text, sender: sender });
-            if(chatHistory.length > 50) chatHistory.shift(); 
-            localStorage.setItem('gomini_chat_history', JSON.stringify(chatHistory));
-        }
-    }
+            // Text change karne ka timer logic
+            const textElement = document.getElementById(`loading-text-${id}`);
+            let step = 0;
+            const interval = setInterval(() => {
+                step++;
+                if (step === 1) textElement.innerText = "Analysing the topic...";
+                if (step === 2) textElement.innerText = "Answering the question...";
+            }, 1500); // Har 1.5 second mein text badlega
 
-    function showThinking(show, text = "Gomini AI सोच रहा है...") {
-        const ind = document.getElementById('thinkingIndicator');
-        const tText = document.getElementById('thinkingText');
-        const body = document.getElementById('chatBody');
-        if(show) {
-            tText.innerText = text;
-            ind.classList.remove('hidden');
-            body.scrollTop = body.scrollHeight;
-        } else {
-            ind.classList.add('hidden');
+            return { id: id, interval: interval };
         }
-    }
-</script>
+
+        function addMessageToUI(text, sender, animate) {
+            const chatBox = document.getElementById('chatBox');
+            const div = document.createElement('div');
+            
+            if(sender === 'user') {
+                div.className = `msg-bubble msg-user ${animate?'':'animate-none'}`;
+                div.innerHTML = text;
+            } else {
+                div.className = `msg-bubble msg-ai flex flex-col gap-2 ${animate?'':'animate-none'}`;
+                
+                // Agar custom error message hai toh usko red/alert style mein thoda dikha sakte hain (optional), 
+                // par normal text ki tarah dikhana bhi theek hai
+                div.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <div class="w-9 h-9 rounded-full bg-[#ff9933]/10 flex items-center justify-center shrink-0 border border-[#ff9933]/30 mt-1">
+                            <img src="https://i.ibb.co/G4xsrr6j/qafx-Ln-R-md.png" class="w-6 h-6 object-contain" crossorigin="anonymous">
+                        </div>
+                        <div class="pt-1.5 text-gray-800 ai-text">${text}</div>
+                    </div>
+                    <div class="flex justify-end border-t border-gray-100 pt-1 mt-1">
+                        <button onclick="speakAI(this)" class="speak-btn" title="Sunne ke liye click karein">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd"></path></svg>
+                        </button>
+                    </div>
+                `;
+            }
+            chatBox.appendChild(div);
+            scrollToBottom();
+        }
+
+        function scrollToBottom() {
+            const chatBox = document.getElementById('chatBox');
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function clearMemory() {
+            const chatBox = document.getElementById('chatBox');
+            while(chatBox.children.length > 1) { chatBox.removeChild(chatBox.lastChild); }
+        }
+    </script>
 </body>
 </html>
